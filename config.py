@@ -1,4 +1,3 @@
-# Authored By Certified Coders © 2025
 import re
 from os import getenv
 from dotenv import load_dotenv
@@ -32,10 +31,10 @@ HEROKU_API_KEY = getenv("HEROKU_API_KEY")
 # ── 5. HATA AYIKLAMA ──────────────────────────────────────────────────────────
 DEBUG_IGNORE_LOG = getenv("DEBUG_IGNORE_LOG", True)
 
-# ── 6. MEDYA VE GÖRSELLER (VİDEOLAR VE STICKERLAR) ────────────────────────────
+# ── 6. MEDYA VE GÖRSELLER ─────────────────────────────────────────────────────
 START_VIDS = []
 STICKERS = [
-    "CAACAgEAAxkBAAECq_xmDR4S-2p5UvR_X6h6n7u-X5m_AAO_AAIyY8YEEqj9zXp0V0YeBA",
+    "CAACAgIAAxkBAAEN_H9ntXjXvR6hGv7f_P_y9p7L_H_A_A", # Yeni Sticker ID
 ]
 
 HELP_IMG_URL = "https://files.catbox.moe/yg2vky.jpg"
@@ -57,7 +56,7 @@ AYUV = [
     "Hayırdır {0}, neye bakmıştın? ~\n\n◆ Ben {1}, Angara'nın en hızlı müzik botuyum.\n\n✨ İCRAATLARIM ⚡️\n◆ Kasmam, donmam, yarı yolda bırakmam.\n◆ Videolu, sesli ne istersen patlatırım.\n◆ Canlı yayın varsa çökerim.\n◆ Reklam falan yapmam, pavyon değil burası.\n\nBotu gruba al, admin yap, sonra arkana yaslan 🎵.\n\n🫧 Sahibi ➪ [@OfficialKiyici](https://t.me/OfficialKiyici)",
 ]
 
-# ── 8. LİMİTLER VE DİĞER AYARLAR ──────────────────────────────────────────────
+# ── 8. LİMİTLER VE ASİSTAN AYARLARI ──────────────────────────────────────────
 SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/Kiyiciupdate")
 SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://t.me/KiyiciZeminChat")
 
@@ -70,6 +69,7 @@ PLAYLIST_FETCH_LIMIT = int(getenv("PLAYLIST_FETCH_LIMIT", "30"))
 
 SUDO_USERS = list(map(int, getenv("SUDO_USERS", "6563936773").split()))
 AUTO_LEAVING_ASSISTANT = getenv("AUTO_LEAVING_ASSISTANT", "True")
+AUTO_LEAVE_ASSISTANT_TIME = int(getenv("AUTO_LEAVE_ASSISTANT_TIME", "3600"))
 
 COOKIE_URL = getenv("COOKIE_URL")
 API_URL = getenv("API_URL")
