@@ -1,4 +1,4 @@
-﻿# Authored By Certified Coders © 2025
+# Authored By Certified Coders © 2025
 import os
 from random import randint
 from typing import Union
@@ -332,7 +332,8 @@ async def stream(
         vidid = result["vidid"]
         title = (result["title"]).title()
         thumbnail = result["thumb"]
-        duration_min = "Live Track"
+        # Canlı yayın süresini şiveli yaptık
+        duration_min = "BiTMEYEN YAYIN"
 
         if await is_active_chat(chat_id):
             await put_queue(
@@ -399,7 +400,8 @@ async def stream(
 
     elif streamtype == "index":
         link = result
-        title = "ɪɴᴅᴇx ᴏʀ ᴍ3ᴜ8 ʟɪɴᴋ"
+        # Index linkleri için başlığı değiştirdik
+        title = "ʟɪɴᴋᴛᴇɴ ᴄᴀʟıʏᴏʀᴜᴢ ɢᴀʀᴅᴀs"
         duration_min = "00:00"
 
         if await is_active_chat(chat_id):
