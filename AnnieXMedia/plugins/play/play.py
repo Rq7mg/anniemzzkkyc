@@ -1,4 +1,4 @@
-﻿# Authored By Certified Coders © 2025
+# Authored By Certified Coders © 2025
 import asyncio
 import random
 import string
@@ -40,6 +40,7 @@ from AnnieXMedia.utils.stream.stream import stream
             "vplayforce",
             "cplayforce",
             "cvplayforce",
+            "oynat", # Türkçe komut desteği
         ]
     )
     & filters.group
@@ -130,7 +131,7 @@ async def play_command(
                 return await mystic.edit_text(err)
 
             caption_query = message.reply_to_message.caption or "—"
-            await play_logs(message, streamtype="Telegram [Audio]", query=caption_query)
+            await play_logs(message, streamtype="Telegram [Ses]", query=caption_query)
             return await mystic.delete()
         return
 
@@ -203,7 +204,7 @@ async def play_command(
                         url, config.PLAYLIST_FETCH_LIMIT, user_id
                     )
                 except Exception as e:
-                    return await mystic.edit_text(f"{_['play_3']}\nʀᴇᴀsᴏɴ: {e}")
+                    return await mystic.edit_text(f"{_['play_3']}\n𝐒𝐞𝐛𝐞𝐩: {e}")
 
                 plist_type = "yt"
                 plist_id = (
@@ -212,73 +213,73 @@ async def play_command(
                 img = config.PLAYLIST_IMG_URL
                 cap = _["play_9"]
                 internal_type = "playlist"
-                log_label = "Youtube playlist"
+                log_label = "Youtube Çalma Listesi"
 
             else:
                 try:
                     details, track_id = await YouTube.track(url)
                 except Exception as e:
-                    return await mystic.edit_text(f"{_['play_3']}\nʀᴇᴀsᴏɴ: {e}")
+                    return await mystic.edit_text(f"{_['play_3']}\n𝐒𝐞𝐛𝐞𝐩: {e}")
 
                 img = details["thumb"]
                 cap = _["play_10"].format(details["title"], details["duration_min"])
                 u = url.lower()
                 internal_type = "youtube"
-                log_label = "Youtube shorts" if "youtube.com/shorts/" in u else "Youtube Track"
+                log_label = "Youtube Shorts" if "youtube.com/shorts/" in u else "Youtube Parçası"
 
         elif await Spotify.valid(url):
             spotify = True
             if not config.SPOTIFY_CLIENT_ID or not config.SPOTIFY_CLIENT_SECRET:
                 return await mystic.edit_text(
-                    "»  sᴘᴏᴛɪғʏ ɪs ɴᴏᴛ sᴜᴘᴘᴏʀᴛᴇᴅ ʏᴇᴛ.\n\nᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ ʟᴀᴛᴇʀ."
+                    "» 𝐒𝐩𝐨𝐭𝐢𝐟𝐲 𝐡𝐞𝐧𝐮̈𝐳 𝐝𝐞𝐬𝐭𝐞𝐤𝐥𝐞𝐧𝐦𝐢𝐲𝐨𝐫.\n\n𝐋𝐮̈𝐭𝐟𝐞𝐧 𝐝𝐚𝐡𝐚 𝐬𝐨𝐧𝐫𝐚 𝐭𝐞𝐤𝐫𝐚𝐫 𝐝𝐞𝐧𝐞𝐲𝐢𝐧."
                 )
 
             if "track" in url:
                 try:
                     details, track_id = await Spotify.track(url)
                 except Exception as e:
-                    return await mystic.edit_text(f"{_['play_3']}\nʀᴇᴀsᴏɴ: {e}")
+                    return await mystic.edit_text(f"{_['play_3']}\n𝐒𝐞𝐛𝐞𝐩: {e}")
 
                 img = details["thumb"]
                 cap = _["play_10"].format(details["title"], details["duration_min"])
                 internal_type = "youtube"
-                log_label = "Spotify Track"
+                log_label = "Spotify Parçası"
 
             elif "playlist" in url:
                 try:
                     details, plist_id = await Spotify.playlist(url)
                 except Exception as e:
-                    return await mystic.edit_text(f"{_['play_3']}\nʀᴇᴀsᴏɴ: {e}")
+                    return await mystic.edit_text(f"{_['play_3']}\n𝐒𝐞𝐛𝐞𝐩: {e}")
 
                 plist_type = "spplay"
                 img = config.SPOTIFY_PLAYLIST_IMG_URL
                 cap = _["play_11"].format(app.mention, message.from_user.mention)
                 internal_type = "playlist"
-                log_label = "Spotify playlist"
+                log_label = "Spotify Listesi"
 
             elif "album" in url:
                 try:
                     details, plist_id = await Spotify.album(url)
                 except Exception as e:
-                    return await mystic.edit_text(f"{_['play_3']}\nʀᴇᴀsᴏɴ: {e}")
+                    return await mystic.edit_text(f"{_['play_3']}\n𝐒𝐞𝐛𝐞𝐩: {e}")
 
                 plist_type = "spalbum"
                 img = config.SPOTIFY_ALBUM_IMG_URL
                 cap = _["play_11"].format(app.mention, message.from_user.mention)
                 internal_type = "playlist"
-                log_label = "Spotify album"
+                log_label = "Spotify Albümü"
 
             elif "artist" in url:
                 try:
                     details, plist_id = await Spotify.artist(url)
                 except Exception as e:
-                    return await mystic.edit_text(f"{_['play_3']}\nʀᴇᴀsᴏɴ: {e}")
+                    return await mystic.edit_text(f"{_['play_3']}\n𝐒𝐞𝐛𝐞𝐩: {e}")
 
                 plist_type = "spartist"
                 img = config.SPOTIFY_ARTIST_IMG_URL
                 cap = _["play_11"].format(message.from_user.first_name)
                 internal_type = "playlist"
-                log_label = "Spotify artist"
+                log_label = "Spotify Sanatçısı"
 
             else:
                 return await mystic.edit_text(_["play_15"])
@@ -288,7 +289,7 @@ async def play_command(
                 try:
                     details, track_id = await Apple.track(url)
                 except Exception as e:
-                    return await mystic.edit_text(f"{_['play_3']}\nʀᴇᴀsᴏɴ: {e}")
+                    return await mystic.edit_text(f"{_['play_3']}\n𝐒𝐞𝐛𝐞𝐩: {e}")
 
                 img = details["thumb"]
                 cap = _["play_10"].format(details["title"], details["duration_min"])
@@ -300,13 +301,13 @@ async def play_command(
                 try:
                     details, plist_id = await Apple.playlist(url)
                 except Exception as e:
-                    return await mystic.edit_text(f"{_['play_3']}\nʀᴇᴀsᴏɴ: {e}")
+                    return await mystic.edit_text(f"{_['play_3']}\n𝐒𝐞𝐛𝐞𝐩: {e}")
 
                 plist_type = "apple"
                 img = url
                 cap = _["play_12"].format(app.mention, message.from_user.mention)
                 internal_type = "playlist"
-                log_label = "Apple Music playlist"
+                log_label = "Apple Music Listesi"
 
             else:
                 return await mystic.edit_text(_["play_3"])
@@ -315,7 +316,7 @@ async def play_command(
             try:
                 details, track_id = await Resso.track(url)
             except Exception as e:
-                return await mystic.edit_text(f"{_['play_3']}\nʀᴇᴀsᴏɴ: {e}")
+                return await mystic.edit_text(f"{_['play_3']}\n𝐒𝐞𝐛𝐞𝐩: {e}")
 
             img = details["thumb"]
             cap = _["play_10"].format(details["title"], details["duration_min"])
@@ -326,7 +327,7 @@ async def play_command(
             try:
                 details, track_path = await SoundCloud.download(url)
             except Exception as e:
-                return await mystic.edit_text(f"{_['play_3']}\nʀᴇᴀsᴏɴ: {e}")
+                return await mystic.edit_text(f"{_['play_3']}\n𝐒𝐞𝐛𝐞𝐩: {e}")
 
             if details["duration_sec"] > config.DURATION_LIMIT:
                 return await mystic.edit_text(
@@ -392,7 +393,7 @@ async def play_command(
                 )
                 return await mystic.edit_text(err)
 
-            return await play_logs(message, streamtype="M3U8 or Index Link")
+            return await play_logs(message, streamtype="M3U8 veya Index Bağlantısı")
 
     else:
         if len(message.command) < 2:
@@ -410,10 +411,10 @@ async def play_command(
         try:
             details, track_id = await YouTube.track(query)
         except Exception as e:
-            return await mystic.edit_text(f"{_['play_3']}\nʀᴇᴀsᴏɴ: {e}")
+            return await mystic.edit_text(f"{_['play_3']}\n𝐒𝐞𝐛𝐞𝐩: {e}")
 
         internal_type = "youtube"
-        log_label = "Youtube Track"
+        log_label = "Youtube Araması"
 
     if str(playmode) == "Direct":
         if not plist_type:
@@ -487,14 +488,14 @@ async def play_command(
                 reply_markup=InlineKeyboardMarkup(buttons),
             )
             plist_label_map = {
-                "yt": "Youtube playlist",
-                "spplay": "Spotify playlist",
-                "spalbum": "Spotify album",
-                "spartist": "Spotify artist",
-                "apple": "Apple Music playlist",
+                "yt": "Youtube Listesi",
+                "spplay": "Spotify Listesi",
+                "spalbum": "Spotify Albümü",
+                "spartist": "Spotify Sanatçısı",
+                "apple": "Apple Music Listesi",
             }
             return await play_logs(
-                message, streamtype=plist_label_map.get(plist_type, "Playlist")
+                message, streamtype=plist_label_map.get(plist_type, "Çalma Listesi")
             )
 
         else:
@@ -517,7 +518,7 @@ async def play_command(
                     ),
                     reply_markup=InlineKeyboardMarkup(buttons),
                 )
-                return await play_logs(message, streamtype="Searched on YouTube")
+                return await play_logs(message, streamtype="Youtube'da Arandı")
 
             else:
                 buttons = track_markup(
@@ -536,7 +537,7 @@ async def play_command(
                     ),
                     reply_markup=InlineKeyboardMarkup(buttons),
                 )
-                return await play_logs(message, streamtype="URL Search Inline")
+                return await play_logs(message, streamtype="URL Araması")
 
 
 @app.on_callback_query(filters.regex("MusicStream") & ~BANNED_USERS)
@@ -624,10 +625,10 @@ async def play_music(client, CallbackQuery, _):
 async def anonymous_check(client, CallbackQuery):
     try:
         await CallbackQuery.answer(
-            "» ʀᴇᴠᴇʀᴛ ʙᴀᴄᴋ ᴛᴏ ᴜsᴇʀ ᴀᴄᴄᴏᴜɴᴛ :\n\n"
-            "ᴏᴘᴇɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ sᴇᴛᴛɪɴɢs.\n"
-            "-> ᴀᴅᴍɪɴɪsᴛʀᴀᴛᴏʀs\n-> ᴄʟɪᴄᴋ ᴏɴ ʏᴏᴜʀ ɴᴀᴍᴇ\n"
-            "-> ᴜɴᴄʜᴇᴄᴋ ᴀɴᴏɴʏᴍᴏᴜs ᴀᴅᴍɪɴ ᴘᴇʀᴍɪssɪᴏɴs.",
+            "» 𝐊𝐮𝐥𝐥𝐚𝐧𝐢𝐜𝐢 𝐡𝐞𝐬𝐚𝐛𝐢𝐧𝐚 𝐠𝐞𝐫𝐢 𝐝𝐨̈𝐧𝐮̈𝐧 :\n\n"
+            "𝐆𝐫𝐮𝐩 𝐚𝐲𝐚𝐫𝐥𝐚𝐫𝐢𝐧𝐢 𝐚𝐜̧𝐢𝐧.\n"
+            "-> 𝐘𝐨̈𝐧𝐞𝐭𝐢𝐜𝐢𝐥𝐞𝐫\n-> 𝐀𝐝𝐢𝐧𝐢𝐳𝐚 𝐭𝐢𝐤𝐥𝐚𝐲𝐢𝐧\n"
+            "-> 𝐀𝐧𝐨𝐧𝐢𝐦 𝐲𝐨̈𝐧𝐞𝐭𝐢𝐜𝐢 𝐢𝐳𝐢𝐧𝐥𝐞𝐫𝐢𝐧𝐢 𝐤𝐚𝐩𝐚𝐭𝐢𝐧.",
             show_alert=True,
         )
     except Exception:
@@ -679,23 +680,23 @@ async def play_playlists_command(client, CallbackQuery, _):
                 videoid=videoid,
             )
             internal_type = "playlist"
-            log_label = "Youtube playlist"
+            log_label = "Youtube Listesi"
         elif ptype == "spplay":
             result, _ = await Spotify.playlist(videoid)
             internal_type = "playlist"
-            log_label = "Spotify playlist"
+            log_label = "Spotify Listesi"
         elif ptype == "spalbum":
             result, _ = await Spotify.album(videoid)
             internal_type = "playlist"
-            log_label = "Spotify album"
+            log_label = "Spotify Albümü"
         elif ptype == "spartist":
             result, _ = await Spotify.artist(videoid)
             internal_type = "playlist"
-            log_label = "Spotify artist"
+            log_label = "Spotify Sanatçısı"
         elif ptype == "apple":
             result, _ = await Apple.playlist(videoid, True)
             internal_type = "playlist"
-            log_label = "Apple Music playlist"
+            log_label = "Apple Music Listesi"
         else:
             return
 
@@ -760,7 +761,8 @@ async def slider_queries(client, CallbackQuery, _):
         await CallbackQuery.edit_message_media(
             media=med, reply_markup=InlineKeyboardMarkup(buttons)
         )
-        await CallbackQuery.answer(_["playcb_2"])
+        await CallbackQuery.answer("𝐒𝐨𝐧𝐫𝐚𝐤𝐢 𝐬𝐨𝐧𝐮𝐜̧ 𝐠𝐞𝐭𝐢𝐫𝐢𝐥𝐝𝐢.")
 
     except Exception:
         pass
+
