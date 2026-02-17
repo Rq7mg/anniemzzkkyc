@@ -1,4 +1,4 @@
-﻿# Authored By Certified Coders © 2025
+# Authored By Certified Coders © 2025
 import asyncio
 import random
 import time
@@ -51,28 +51,17 @@ async def start_pm(client, message: Message, _):
 
         if name.startswith("help"):
             keyboard = first_page(_)
-            return await message.reply_photo(
-                photo=HELP_IMG_URL,
-                caption=_["help_1"].format(config.SUPPORT_CHAT),
+            return await message.reply_text(
+                text=f"**𝐋𝐚 𝐠𝐚𝐫𝐝𝐚𝐬̧, 𝐲𝐚𝐫𝐝𝐢𝐦 𝐦𝐢 𝐥𝐚𝐳𝐢𝐦? 𝐀𝐥 𝐛𝐚𝐤 𝐛𝐮𝐧𝐥𝐚𝐫𝐚 𝐢𝐬̧𝐭𝐞:**\n\n{_['help_1'].format(config.SUPPORT_CHAT)}",
                 reply_markup=keyboard,
             )
 
         if name.startswith("sud"):
             await sudoers_list(client=client, message=message, _=_)
-            if await is_on_off(2):
-                username = f"@{message.from_user.username}" if message.from_user.username else "(none)"
-                await app.send_message(
-                    chat_id=config.LOGGER_ID,
-                    text=(
-                        f"{message.from_user.mention} ᴊᴜsᴛ sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ʙᴏᴛ ᴛᴏ ᴄʜᴇᴄᴋ <b>sᴜᴅᴏʟɪsᴛ</b>.\n\n"
-                        f"<b>ᴜsᴇʀ ɪᴅ :</b> <code>{message.from_user.id}</code>\n"
-                        f"<b>ᴜsᴇʀɴᴀᴍᴇ :</b> {username}"
-                    ),
-                )
             return
 
         if name.startswith("inf"):
-            m = await message.reply_text("🔎")
+            m = await message.reply_text("🔎 **𝐌𝐞𝐯𝐳𝐮𝐲𝐮 𝐚𝐫𝐚𝐬̧𝐭𝐢𝐫𝐢𝐲𝐨𝐫𝐮𝐦...**")
             try:
                 vid_id = str(name).replace("info_", "", 1)
                 query = f"https://www.youtube.com/watch?v={vid_id}"
@@ -80,77 +69,46 @@ async def start_pm(client, message: Message, _):
                 data = await results.next()
                 result = (data.get("result") or [None])[0]
                 if not result:
-                    await m.edit_text("No results found.")
+                    await m.edit_text("𝐁𝐨𝐬̧𝐚 𝐚𝐫𝐚𝐦𝐚 𝐠𝐚𝐫𝐝𝐚𝐬̧, 𝐛𝐮𝐥𝐚𝐦𝐚𝐝𝐢𝐦.")
                     return
 
-                title = result.get("title") or "Unknown"
-                duration = result.get("duration") or "Unknown"
-                views = (result.get("viewCount") or {}).get("short") or "Unknown"
+                title = result.get("title") or "İsimsiz Mevzu"
+                duration = result.get("duration") or "Belli Değil"
+                views = (result.get("viewCount") or {}).get("short") or "0"
                 thumbnail = ((result.get("thumbnails") or [{}])[0].get("url") or "").split("?")[0]
-                channellink = (result.get("channel") or {}).get("link") or "https://youtube.com"
-                channel = (result.get("channel") or {}).get("name") or "Unknown"
-                link = result.get("link") or query
-                published = result.get("publishedTime") or "Unknown"
-
-                searched_text = _["start_6"].format(title, duration, views, published, channellink, channel, app.mention)
+                
+                searched_text = f"⁍ **𝐌𝐞𝐯𝐳𝐮:** {title}\n⁍ **𝐕𝐚𝐤𝐢𝐭:** {duration}\n⁍ **𝐓𝐢𝐤𝐥𝐚𝐧𝐦𝐚:** {views}\n\n**𝐀𝐜̧𝐚𝐥𝐢𝐦 𝐦𝐢 𝐛𝐮𝐧𝐮 𝐠𝐚𝐫𝐝𝐚𝐬̧?**"
                 key = InlineKeyboardMarkup(
-                    [[InlineKeyboardButton(text=_["S_B_6"], url=link),
-                      InlineKeyboardButton(text=_["S_B_4"], url=config.SUPPORT_CHAT)]]
+                    [[InlineKeyboardButton(text="𝐌𝐞𝐯𝐳𝐮𝐲𝐚 𝐆𝐢𝐭", url=result.get("link")),
+                      InlineKeyboardButton(text="𝐃𝐞𝐬𝐭𝐞𝐤", url=config.SUPPORT_CHAT)]]
                 )
 
                 await m.delete()
-
-                await app.send_photo(
-                    chat_id=message.chat.id,
-                    photo=thumbnail or HELP_IMG_URL,
-                    caption=searched_text,
-                    reply_markup=key,
-                )
-
-                if await is_on_off(2):
-                    username = f"@{message.from_user.username}" if message.from_user.username else "(none)"
-                    await app.send_message(
-                        chat_id=config.LOGGER_ID,
-                        text=(
-                            f"{message.from_user.mention} ᴊᴜsᴛ sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ʙᴏᴛ ᴛᴏ ᴄʜᴇᴄᴋ <b>ᴛʀᴀᴄᴋ ɪɴғᴏʀᴍᴀᴛɪᴏɴ</b>.\n\n"
-                            f"<b>ᴜsᴇʀ ɪᴅ :</b> <code>{message.from_user.id}</code>\n"
-                            f"<b>ᴜsᴇʀɴᴀᴍᴇ :</b> {username}"
-                        ),
-                    )
+                await message.reply_photo(photo=thumbnail, caption=searched_text, reply_markup=key)
             except Exception as e:
-                await m.edit_text(f"Error: {e}")
+                await m.edit_text(f"𝐌𝐞𝐯𝐳𝐮 𝐩𝐚𝐭𝐥𝐚𝐝𝐢: {e}")
             return
 
+    # Özel Mesaj Karşılama (Video İptal Edildi)
     out = private_panel(_)
     sticker_message = await message.reply_sticker(sticker=random.choice(STICKERS))
     asyncio.create_task(delete_sticker_after_delay(sticker_message, 2))
 
-    served_chats_coro = get_served_chats()
-    served_users_coro = get_served_users()
     stats_coro = bot_sys_stats()
-    served_chats, served_users, (UP, CPU, RAM, DISK) = await asyncio.gather(
-        served_chats_coro, served_users_coro, stats_coro
+    _, _, (UP, CPU, RAM, DISK) = await asyncio.gather(
+        get_served_chats(), get_served_users(), stats_coro
     )
 
-    await message.reply_video(
-        random.choice(START_VIDS),
-        caption=random.choice(AYUV).format(
-            message.from_user.mention, app.mention, UP, DISK, CPU, RAM, len(served_users), len(served_chats)
-        ),
+    # VIDEO YERİNE METİN
+    await message.reply_text(
+        text=f"**𝐕𝐚𝐲 𝐠𝐚𝐫𝐝𝐚𝐬̧𝐢𝐦 {message.from_user.mention} 𝐡𝐨𝐬̧𝐠𝐞𝐥𝐝𝐢𝐧!**\n\n"
+             f"**𝐁𝐞𝐧 KIYICI  𝐌𝐮̈𝐳𝐢𝐤 𝐁𝐨𝐭𝐮, 𝐡𝐚𝐲𝐢𝐫𝐝𝐢𝐫 𝐧𝐞 𝐝𝐢𝐧𝐥𝐞𝐲𝐞𝐜𝐞𝐤𝐬𝐢𝐧?**\n\n"
+             f"**𝐒𝐢𝐬𝐭𝐞𝐦 𝐃𝐮𝐫𝐮𝐦𝐮:**\n"
+             f"⁍ **𝐀𝐲𝐚𝐤𝐭𝐚𝐲𝐢𝐳:** {UP}\n"
+             f"⁍ **𝐂𝐏𝐔:** {CPU} | **𝐑𝐀𝐌:** {RAM}\n"
+             f"⁍ **𝐃𝐢𝐬𝐤:** {DISK}",
         reply_markup=InlineKeyboardMarkup(out),
     )
-
-    if await is_on_off(2):
-        username = f"@{message.from_user.username}" if message.from_user.username else "(none)"
-        await app.send_message(
-            chat_id=config.LOGGER_ID,
-            text=(
-                f"{message.from_user.mention} ᴊᴜsᴛ sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ʙᴏᴛ.\n\n"
-                f"<b>ᴜsᴇʀ ɪᴅ :</b> <code>{message.from_user.id}</code>\n"
-                f"<b>ᴜsᴇʀɴᴀᴍᴇ :</b> {username}"
-            ),
-        )
-
 
 @app.on_message(filters.command(["start"]) & filters.group & ~BANNED_USERS)
 @LanguageStart
@@ -158,15 +116,16 @@ async def start_gp(client, message: Message, _):
     out = start_panel(_)
     uptime = int(time.time() - _boot_)
     try:
-        await message.reply_video(
-            random.choice(START_VIDS),
-            caption=_["start_1"].format(app.mention, get_readable_time(uptime)),
+        # GRUPTA VİDEO YERİNE METİN
+        await message.reply_text(
+            text=f"**𝐇𝐚𝐲𝐢𝐫𝐥𝐢 𝐢𝐬̧𝐥𝐞𝐫 𝐠𝐚𝐫𝐝𝐚𝐬̧𝐥𝐚𝐫!**\n\n"
+                 f"**𝐁𝐨𝐭𝐮𝐦𝐮𝐳 {get_readable_time(uptime)} 𝐬𝐮̈𝐫𝐞𝐝𝐢𝐫 𝐦𝐞𝐯𝐳𝐮𝐧𝐮𝐧 𝐛𝐚𝐬̧𝐢𝐧𝐝𝐚.**\n"
+                 f"**𝐌𝐮̈𝐳𝐢𝐤 𝐚𝐜̧𝐦𝐚𝐤 𝐢𝐬𝐭𝐞𝐲𝐞𝐧 `/oynat` 𝐲𝐚𝐳𝐬𝐢𝐧.**",
             reply_markup=InlineKeyboardMarkup(out),
         )
     except:
         pass
     return await add_served_chat(message.chat.id)
-
 
 @app.on_message(filters.new_chat_members, group=-1)
 async def welcome(client, message: Message):
@@ -178,34 +137,20 @@ async def welcome(client, message: Message):
             if await is_banned_user(member.id):
                 try:
                     await message.chat.ban_member(member.id)
+                    return await message.reply_text("**𝐋𝐚 𝐠𝐚𝐫𝐝𝐚𝐬̧ 𝐛𝐮 𝐛𝐞𝐛𝐞 𝐬𝐚𝐛𝐢𝐤𝐚𝐥𝐢, 𝐚𝐭𝐭𝐢𝐦 𝐠𝐢𝐭𝐭𝐢!**")
                 except Exception:
                     pass
 
             if member.id == app.id:
                 if message.chat.type != ChatType.SUPERGROUP:
-                    await message.reply_text(_["start_4"])
-                    return await app.leave_chat(message.chat.id)
-
-                if message.chat.id in await blacklisted_chats():
-                    await message.reply_text(
-                        _["start_5"].format(
-                            app.mention,
-                            f"https://t.me/{app.username}?start=sudolist",
-                            config.SUPPORT_CHAT,
-                        ),
-                        disable_web_page_preview=True,
-                    )
+                    await message.reply_text("**𝐁𝐚𝐤 𝐠𝐚𝐫𝐝𝐚𝐬̧, 𝐛𝐞𝐧𝐢 𝐬𝐮̈𝐩𝐞𝐫 𝐠𝐫𝐮𝐩 𝐲𝐚𝐩𝐦𝐚𝐳𝐬𝐚𝐧 𝐜̧𝐚𝐥𝐢𝐬̧𝐦𝐚𝐦!**")
                     return await app.leave_chat(message.chat.id)
 
                 out = start_panel(_)
-                await message.reply_video(
-                    random.choice(START_VIDS),
-                    caption=_["start_3"].format(
-                        message.from_user.mention,
-                        app.mention,
-                        message.chat.title,
-                        app.mention,
-                    ),
+                await message.reply_text(
+                    text=f"**𝐒𝐞𝐥𝐚𝐦𝐮𝐧 𝐀𝐥𝐞𝐲𝐤𝐮̈𝐦 𝐠𝐫𝐮𝐩 𝐚𝐡𝐚𝐥𝐢𝐬𝐢!**\n\n"
+                         f"**{message.from_user.mention} 𝐠𝐚𝐫𝐝𝐚𝐬̧𝐢𝐦 𝐛𝐞𝐧𝐢 𝐛𝐮𝐫𝐚𝐲𝐚 𝐠𝐞𝐭𝐢𝐫𝐝𝐢.**\n"
+                         f"**𝐇𝐚𝐝𝐢 𝐛𝐚𝐤𝐚𝐥𝐢𝐦, 𝐦𝐞𝐯𝐳𝐮𝐲𝐮 𝐛𝐚𝐬̧𝐥𝐚𝐭𝐚𝐥𝐢𝐦!**",
                     reply_markup=InlineKeyboardMarkup(out),
                 )
                 await add_served_chat(message.chat.id)
