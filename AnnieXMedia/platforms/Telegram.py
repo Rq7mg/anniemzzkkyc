@@ -1,4 +1,4 @@
-﻿# Authored By Certified Coders © 2025
+# Authored By Certified Coders © 2025
 import asyncio
 import os
 import time
@@ -35,9 +35,10 @@ class TeleAPI:
         try:
             file_name = getattr(file, "file_name", None)
             if not file_name:
-                file_name = "ᴛᴇʟᴇɢʀᴀᴍ ᴀᴜᴅɪᴏ" if audio else "ᴛᴇʟᴇɢʀᴀᴍ ᴠɪᴅᴇᴏ"
+                # Burayı Angara şivesine çektik gardaş
+                file_name = "ᴀɴɢᴀʀᴀ sᴇsɪ" if audio else "ᴀɴɢᴀʀᴀ ᴠɪᴅᴇᴏsᴜ"
         except Exception:
-            file_name = "ᴛᴇʟᴇɢʀᴀᴍ ᴀᴜᴅɪᴏ" if audio else "ᴛᴇʟᴇɢʀᴀᴍ ᴠɪᴅᴇᴏ"
+            file_name = "ᴀɴɢᴀʀᴀ sᴇsɪ" if audio else "ᴀɴɢᴀʀᴀ ᴠɪᴅᴇᴏsᴜ"
         return file_name
 
     async def get_duration(self, file_obj, file_path: Optional[str] = None) -> str:
@@ -56,7 +57,7 @@ class TeleAPI:
             except Exception:
                 pass
 
-        return "Unknown"
+        return "Belli Değil la"
 
     async def get_filepath(
         self,
@@ -97,8 +98,9 @@ class TeleAPI:
                     speed_counter[message.id] = time.time()
                 elapsed = max(time.time() - speed_counter[message.id], 1e-3)
 
+                # Buton ismini "Durdur la" yaptık
                 upl = InlineKeyboardMarkup(
-                    [[InlineKeyboardButton(text="ᴄᴀɴᴄᴇʟ", callback_data="stop_downloading")]]
+                    [[InlineKeyboardButton(text="ᴅᴜʀᴅᴜʀ ʟᴀ", callback_data="stop_downloading")]]
                 )
 
                 percentage = current * 100 / total
@@ -108,7 +110,8 @@ class TeleAPI:
                 except Exception:
                     speed, eta_s = 0, 0
 
-                eta = get_readable_time(eta_s) or "0 sᴇᴄᴏɴᴅs"
+                # Zaman birimini de şiveye uygun yaptık
+                eta = get_readable_time(eta_s) or "ᴀᴢ ᴋᴀʟᴅı"
                 total_size = convert_bytes(total)
                 completed_size = convert_bytes(current)
                 speed_h = convert_bytes(speed)
@@ -118,6 +121,7 @@ class TeleAPI:
                     low, high, check = int(lower[counter]), int(higher[counter]), int(checker[counter])
                     if low < percentage_i <= high and high == check:
                         try:
+                            # Burada senin YAML dosyasındaki tg_1 etiketini kullanıyor
                             await mystic.edit_text(
                                 text=_["tg_1"].format(
                                     app.mention, total_size, completed_size, str(percentage)[:5], speed_h, eta
@@ -138,9 +142,11 @@ class TeleAPI:
                 try:
                     elapsed = get_readable_time(int(time.time() - speed_counter[message.id]))
                 except Exception:
-                    elapsed = "0 sᴇᴄᴏɴᴅs"
+                    elapsed = "ɢᴏᴢ ᴀᴄıᴘ ᴋᴀᴘᴀʏᴀɴᴀ ᴋᴀᴅᴀʀ"
+                # Başarılı bittiğinde YAML'daki tg_2'yi çeker
                 await mystic.edit_text(_["tg_2"].format(elapsed))
             except Exception:
+                # Hata verirse tg_3'ü çeker
                 await mystic.edit_text(_["tg_3"])
 
         task = asyncio.create_task(down_load())
