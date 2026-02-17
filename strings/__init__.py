@@ -1,35 +1,27 @@
-﻿# Authored By Certified Coders © 2025
+# Authored By Certified Coders © 2025
 import os
 from typing import List
-
 import yaml
 
+# Dil depoları
 languages = {}
 languages_present = {}
 
-
 def get_string(lang: str):
-    return languages[lang]
+    # Bot her zaman 'en' istese bile biz ona Türkçe olanı vereceğiz la!
+    return languages["en"]
 
-
-for filename in os.listdir(r"./strings/langs/"):
-    if "en" not in languages:
+# Sadece ana dil dosyasını (en.yml) yüklüyoruz
+# Çünkü en.yml dosyasını senin için Angara şivesiyle doldurduk.
+if "en" not in languages:
+    try:
         languages["en"] = yaml.safe_load(
             open(r"./strings/langs/en.yml", encoding="utf8")
         )
+        # Dil listesinde sadece bu görünsün
         languages_present["en"] = languages["en"]["name"]
-    if filename.endswith(".yml"):
-        language_name = filename[:-4]
-        if language_name == "en":
-            continue
-        languages[language_name] = yaml.safe_load(
-            open(r"./strings/langs/" + filename, encoding="utf8")
-        )
-        for item in languages["en"]:
-            if item not in languages[language_name]:
-                languages[language_name][item] = languages["en"][item]
-    try:
-        languages_present[language_name] = languages[language_name]["name"]
-    except:
-        print("There is some issue with the language file inside bot.")
+    except Exception as e:
+        print(f"La dil dosyası yüklenemedi, mevzu var: {e}")
         exit()
+
+# Diğer dilleri döngüye sokup yüklemiyoruz, botu Türkçeye mahkum ettik!
