@@ -57,10 +57,17 @@ def build_pic(av, fn, uid, un):
     bg.paste(avatar, (1887, 390), avatar)
     d = ImageDraw.Draw(bg)
     f = cached_font()
-    d.text((421, 715), fn, fill=(242, 242, 242), font=f)
-    d.text((270, 1005), str(uid), fill=(242, 242, 242), font=f)
-    d.text((570, 1308), un, fill=(242, 242, 242), font=f)
-    path = f"downloads/welcome_{uid}.png"
+
+    # Boş değerleri güvenli hâle getiriyoruz
+    fn_safe = fn or "Yeni Üye"
+    uid_safe = str(uid or "???")
+    un_safe = un or "No Username"
+
+    d.text((421, 715), fn_safe, fill=(242, 242, 242), font=f)
+    d.text((270, 1005), uid_safe, fill=(242, 242, 242), font=f)
+    d.text((570, 1308), un_safe, fill=(242, 242, 242), font=f)
+
+    path = f"downloads/welcome_{uid_safe}.png"
     bg.save(path)
     return path
 
