@@ -11,15 +11,14 @@ API_ID = int(getenv("API_ID", 27798659))
 API_HASH = getenv("API_HASH", "26100c77cee02e5e34b2bbee58440f86")
 BOT_TOKEN = getenv("BOT_TOKEN")
 
-# ── 2. SENİN BİLGİLERİN (DÜZELTİLDİ) ──────────────────────────────────────────
+# ── 2. SENİN BİLGİLERİN ───────────────────────────────────────────────────────
 OWNER_ID = int(getenv("OWNER_ID", 6563936773))
-OWNER_USERNAME = getenv("OWNER_USERNAME", "OfficialKiyici") # Senin kullanıcı adın
-BOT_USERNAME = getenv("BOT_USERNAME", "Kycmuzikbot")        # Botun kullanıcı adı
+OWNER_USERNAME = getenv("OWNER_USERNAME", "OfficialKiyici")
+BOT_USERNAME = getenv("BOT_USERNAME", "Kycmuzikbot")
 BOT_NAME = getenv("BOT_NAME", "𝐊𝐈𝐘𝐈𝐂𝐈 𝐌𝐔𝐙𝐈𝐊 🇹🇷")
 ASSUSERNAME = getenv("ASSUSERNAME", "musicxannie")
 
-# ── 3. GÜNCELLEME VE REPO (HATAYI ÇÖZEN KISIM) ────────────────────────────────
-# Bot açılırken buraya bakar, burası olmazsa bot çöker.
+# ── 3. GÜNCELLEME VE REPO ─────────────────────────────────────────────────────
 UPSTREAM_REPO = getenv("UPSTREAM_REPO", "https://github.com/Rq7mg/anniemzzkkyc")
 UPSTREAM_BRANCH = getenv("UPSTREAM_BRANCH", "Master")
 GIT_TOKEN = getenv("GIT_TOKEN", None)
@@ -30,11 +29,11 @@ LOGGER_ID = int(getenv("LOGGER_ID", -1002014167331))
 HEROKU_APP_NAME = getenv("HEROKU_APP_NAME")
 HEROKU_API_KEY = getenv("HEROKU_API_KEY")
 
-# ── 5. MEDYA VE GÖRSELLER (VİDEOLAR KAPALI) ───────────────────────────────────
-# Burayı boş bıraktık ki /start verince video çıkmasın
-START_VIDS = []
+# ── 5. HATA AYIKLAMA (KRİTİK EKSİK BURADAYDI) ─────────────────────────────────
+DEBUG_IGNORE_LOG = getenv("DEBUG_IGNORE_LOG", True) # Bu satır hatayı çözer
 
-# Resim linkleri (Bunlar kalabilir, sorun çıkarmaz)
+# ── 6. MEDYA VE GÖRSELLER ─────────────────────────────────────────────────────
+START_VIDS = []
 HELP_IMG_URL = "https://files.catbox.moe/yg2vky.jpg"
 PING_VID_URL = "https://files.catbox.moe/3ivvgo.mp4"
 PLAYLIST_IMG_URL = "https://files.catbox.moe/yhaja5.jpg"
@@ -46,15 +45,15 @@ SOUNCLOUD_IMG_URL = "https://files.catbox.moe/zhymxl.jpg"
 YOUTUBE_IMG_URL = "https://files.catbox.moe/veykzq.jpg"
 SPOTIFY_ARTIST_IMG_URL = SPOTIFY_ALBUM_IMG_URL = SPOTIFY_PLAYLIST_IMG_URL = YOUTUBE_IMG_URL
 
-# ── 6. ANKARA ŞİVESİ MESAJLAR ────────────────────────────────────────────────
+# ── 7. ANKARA ŞİVESİ MESAJLAR ────────────────────────────────────────────────
 AYU = ["🔥", "🍷", "🥂", "🥃"]
 
 AYUV = [
-    "Selamın Aleyküm Gardaşım {0}, 🥀\n\nBen {1} !\n\n┏━━━━━━━━━━━━━━━━━⧫\n┠ ◆ Mevzuyu biliyosun, her türlü çalarız.\n┠ ◆ Youtube, Spotify ne varsa getir.\n┗━━━━━━━━━━━━━━━━━⧫\n┏━━━━━━━━━━━━━━━━━⧫\n┠ ➥ Ayaktayız : {2}\n┠ ➥ Depo : {3}\n┠ ➥ Motor Yükü : {4}\n┠ ➥ Hafıza : {5}\n┠ ➥ Bebeler : {6}\n┠ ➥ Gruplar : {7}\n┗━━━━━━━━━━━━━━━━━⧫\n\n🫧 Sahibi ➪ [@OfficialKiyici](https://t.me/OfficialKiyici)",
+    "Selamın Aleyküm Gardaşım {0}, 🥀\n\nBen {1} !\n\n┏━━━━━━━━━━━━━━━━━⧫\n┠ ◆ Mevzuyu biliyosun, her türlü çalarız.\n┠ ◆ Youtube, Spotify ne varsa getir.\n┗━━━━━━━━━━━━━━━━━⧫\n┏━━━━━━━━━━━━━━━━━⧫\n┠ ➥ Ayaktayız: {2}\n┠ ➥ Depo: {3}\n┠ ➥ Motor Yükü: {4}\n┠ ➥ Hafıza: {5}\n┠ ➥ Bebeler: {6}\n┠ ➥ Gruplar: {7}\n┗━━━━━━━━━━━━━━━━━⧫\n\n🫧 Sahibi ➪ [@OfficialKiyici](https://t.me/OfficialKiyici)",
     "Hayırdır {0}, neye bakmıştın? ~\n\n◆ Ben {1}, Angara'nın en hızlı müzik botuyum.\n\n✨ İCRAATLARIM ⚡️\n◆ Kasmam, donmam, yarı yolda bırakmam.\n◆ Videolu, sesli ne istersen patlatırım.\n◆ Canlı yayın varsa çökerim.\n◆ Reklam falan yapmam, pavyon değil burası.\n\nBotu gruba al, admin yap, sonra arkana yaslan 🎵.\n\n🫧 Sahibi ➪ [@OfficialKiyici](https://t.me/OfficialKiyici)",
 ]
 
-# ── 7. LİMİTLER VE DİĞER AYARLAR ──────────────────────────────────────────────
+# ── 8. LİMİTLER VE DİĞER AYARLAR ──────────────────────────────────────────────
 SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/Kiyiciupdate")
 SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://t.me/KiyiciZeminChat")
 
@@ -65,6 +64,13 @@ TG_AUDIO_FILESIZE_LIMIT = int(getenv("TG_AUDIO_FILESIZE_LIMIT", "157286400"))
 TG_VIDEO_FILESIZE_LIMIT = int(getenv("TG_VIDEO_FILESIZE_LIMIT", "1288490189"))
 PLAYLIST_FETCH_LIMIT = int(getenv("PLAYLIST_FETCH_LIMIT", "30"))
 
+# Sudo Kullanıcılar (Kendini ve güvendiğin bebeleri ekle)
+SUDO_USERS = list(map(int, getenv("SUDO_USERS", "6563936773").split()))
+
+# Asistan Ayarları
+AUTO_LEAVING_ASSISTANT = getenv("AUTO_LEAVING_ASSISTANT", "True")
+
+# API VE DİĞERLERİ
 COOKIE_URL = getenv("COOKIE_URL")
 API_URL = getenv("API_URL")
 VIDEO_API_URL = getenv("VIDEO_API_URL")
