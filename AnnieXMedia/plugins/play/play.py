@@ -32,8 +32,8 @@ from AnnieXMedia.utils.stream.stream import stream
 @app.on_message(
     filters.command(
         [
-            "play",
-            "vplay",
+            "oynat",
+            "voynat",
             "cplay",
             "cvplay",
             "playforce",
