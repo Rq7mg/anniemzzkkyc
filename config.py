@@ -29,11 +29,15 @@ LOGGER_ID = int(getenv("LOGGER_ID", -1002014167331))
 HEROKU_APP_NAME = getenv("HEROKU_APP_NAME")
 HEROKU_API_KEY = getenv("HEROKU_API_KEY")
 
-# ── 5. HATA AYIKLAMA (KRİTİK EKSİK BURADAYDI) ─────────────────────────────────
-DEBUG_IGNORE_LOG = getenv("DEBUG_IGNORE_LOG", True) # Bu satır hatayı çözer
+# ── 5. HATA AYIKLAMA ──────────────────────────────────────────────────────────
+DEBUG_IGNORE_LOG = getenv("DEBUG_IGNORE_LOG", True)
 
-# ── 6. MEDYA VE GÖRSELLER ─────────────────────────────────────────────────────
+# ── 6. MEDYA VE GÖRSELLER (VİDEOLAR VE STICKERLAR) ────────────────────────────
 START_VIDS = []
+STICKERS = [
+    "CAACAgEAAxkBAAECq_xmDR4S-2p5UvR_X6h6n7u-X5m_AAO_AAIyY8YEEqj9zXp0V0YeBA",
+]
+
 HELP_IMG_URL = "https://files.catbox.moe/yg2vky.jpg"
 PING_VID_URL = "https://files.catbox.moe/3ivvgo.mp4"
 PLAYLIST_IMG_URL = "https://files.catbox.moe/yhaja5.jpg"
@@ -64,13 +68,9 @@ TG_AUDIO_FILESIZE_LIMIT = int(getenv("TG_AUDIO_FILESIZE_LIMIT", "157286400"))
 TG_VIDEO_FILESIZE_LIMIT = int(getenv("TG_VIDEO_FILESIZE_LIMIT", "1288490189"))
 PLAYLIST_FETCH_LIMIT = int(getenv("PLAYLIST_FETCH_LIMIT", "30"))
 
-# Sudo Kullanıcılar (Kendini ve güvendiğin bebeleri ekle)
 SUDO_USERS = list(map(int, getenv("SUDO_USERS", "6563936773").split()))
-
-# Asistan Ayarları
 AUTO_LEAVING_ASSISTANT = getenv("AUTO_LEAVING_ASSISTANT", "True")
 
-# API VE DİĞERLERİ
 COOKIE_URL = getenv("COOKIE_URL")
 API_URL = getenv("API_URL")
 VIDEO_API_URL = getenv("VIDEO_API_URL")
