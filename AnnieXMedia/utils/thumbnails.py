@@ -1,4 +1,4 @@
-﻿# Authored By Certified Coders © 2025
+# Authored By Certified Coders © 2025
 import os
 import re
 import aiofiles
@@ -56,15 +56,16 @@ async def get_thumb(videoid: str) -> str:
         if not result_items:
             raise ValueError("No results found.")
         data = result_items[0]
-        title = re.sub(r"\W+", " ", data.get("title", "Unsupported Title")).title()
+        title = re.sub(r"\W+", " ", data.get("title", "İsimsiz Mevzu")).title()
         thumbnail = data.get("thumbnails", [{}])[0].get("url", YOUTUBE_IMG_URL)
         duration = data.get("duration")
-        views = data.get("viewCount", {}).get("short", "Unknown Views")
+        views = data.get("viewCount", {}).get("short", "Belli Değil la")
     except Exception:
-        title, thumbnail, duration, views = "Unsupported Title", YOUTUBE_IMG_URL, None, "Unknown Views"
+        title, thumbnail, duration, views = "İsimsiz Mevzu", YOUTUBE_IMG_URL, None, "Belli Değil la"
 
+    # Canlı yayın ve süre kısımları
     is_live = not duration or str(duration).strip().lower() in {"", "live", "live now"}
-    duration_text = "Live" if is_live else duration or "Unknown Mins"
+    duration_text = "Mevzu Canlı" if is_live else duration or "Belli Değil"
 
     # Download thumbnail
     thumb_path = os.path.join(CACHE_DIR, f"thumb{videoid}.png")
@@ -103,7 +104,8 @@ async def get_thumb(videoid: str) -> str:
     bg.paste(thumb, (THUMB_X, THUMB_Y), tmask)
 
     draw.text((TITLE_X, TITLE_Y), trim_to_width(title, title_font, MAX_TITLE_WIDTH), fill="black", font=title_font)
-    draw.text((META_X, META_Y), f"YouTube | {views}", fill="black", font=regular_font)
+    # "YouTube | 1.2M Views" yerine "YouTube | 1.2M Tıklandı la" yazdık
+    draw.text((META_X, META_Y), f"YouTube | {views} Tıklandı la", fill="black", font=regular_font)
 
     # Progress bar
     draw.line([(BAR_X, BAR_Y), (BAR_X + BAR_RED_LEN, BAR_Y)], fill="red", width=6)
@@ -111,7 +113,7 @@ async def get_thumb(videoid: str) -> str:
     draw.ellipse([(BAR_X + BAR_RED_LEN - 7, BAR_Y - 7), (BAR_X + BAR_RED_LEN + 7, BAR_Y + 7)], fill="red")
 
     draw.text((BAR_X, BAR_Y + 15), "00:00", fill="black", font=regular_font)
-    end_text = "Live" if is_live else duration_text
+    end_text = "Mevzu Canlı" if is_live else duration_text
     draw.text((BAR_X + BAR_TOTAL_LEN - (90 if is_live else 60), BAR_Y + 15), end_text, fill="red" if is_live else "black", font=regular_font)
 
     # Icons
