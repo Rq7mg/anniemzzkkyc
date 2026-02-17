@@ -33,9 +33,8 @@ DEBUG_IGNORE_LOG = getenv("DEBUG_IGNORE_LOG", True)
 
 # ── 6. MEDYA VE GÖRSELLER ─────────────────────────────────────────────────────
 START_VIDS = []
-STICKERS = [
-    "CAACAgIAAxkBAAEN_H9ntXjXvR6hGv7f_P_y9p7L_H_A_A", # Yeni Sticker ID
-]
+# Hatalı sticker ID'si kaldırıldı, liste boşaltıldı.
+STICKERS = []
 
 HELP_IMG_URL = "https://files.catbox.moe/yg2vky.jpg"
 PING_VID_URL = "https://files.catbox.moe/3ivvgo.mp4"
