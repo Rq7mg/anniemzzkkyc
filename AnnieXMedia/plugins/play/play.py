@@ -32,15 +32,15 @@ from AnnieXMedia.utils.stream.stream import stream
 @app.on_message(
     filters.command(
         [
-            "oynat",
-            "voynat",
+            "oynat",          # Sesli oynat (Ankara)
+            "voynat",         # Videolu oynat (Ankara)
+            "atla",           # Şarkı geç (Ankara)
+            "play", 
+            "vplay",
             "cplay",
             "cvplay",
             "playforce",
             "vplayforce",
-            "cplayforce",
-            "cvplayforce",
-            "oynat", # Ankara usulü oynat komutu
             "cal",
         ]
     )
@@ -91,7 +91,6 @@ async def play_command(
         file_path = await Telegram.get_filepath(audio=audio_telegram)
         downloaded = await Telegram.download(_, message, mystic, file_path)
         if downloaded:
-            # ... (diğer kodlar aynı kalacak şekilde devam ediyor)
             message_link = await Telegram.get_link(message)
             file_name = await Telegram.get_filename(audio_telegram, audio=True)
             dur = await Telegram.get_duration(audio_telegram, file_path)
@@ -119,7 +118,6 @@ async def play_command(
         slider = True
         query = message.text.split(None, 1)[1]
         
-        # Youtube arama başlasın
         try:
             details, track_id = await YouTube.track(query)
         except Exception:
@@ -133,12 +131,9 @@ async def play_command(
             await stream(_, mystic, user_id, details, chat_id, user_name, message.chat.id, video=bool(video), streamtype=internal_type, spotify=spotify, forceplay=bool(fplay))
             await mystic.delete()
         else:
-            # Butonlu kısım
             if slider:
                 buttons = slider_markup(_, track_id, user_id, query, 0, "c" if channel else "g", "f" if fplay else "d")
                 await mystic.delete()
                 await message.reply_photo(photo=details["thumb"], caption=f"⁍ **𝐏𝐚𝐫𝐜̧𝐚:** {details['title']}\n⁍ **𝐒𝐮̈𝐫𝐞:** {details['duration_min']}\n\n**𝐌𝐞𝐯𝐳𝐮𝐲𝐮 𝐛𝐚𝐬̧𝐥𝐚𝐭𝐢𝐲𝐨𝐫𝐮𝐦, 𝐤𝐮𝐥𝐚𝐠̆𝐢𝐧𝐢𝐳𝐢 𝐚𝐜̧𝐢𝐧!**", reply_markup=InlineKeyboardMarkup(buttons))
     except Exception as e:
         await mystic.edit_text(f"𝐌𝐞𝐯𝐳𝐮 𝐩𝐚𝐭𝐥𝐚𝐝𝐢 𝐠𝐚𝐫𝐝𝐚𝐬̧: {e}")
-
-# ... Kodun geri kalanı aynı mantıkla devam eder ...
