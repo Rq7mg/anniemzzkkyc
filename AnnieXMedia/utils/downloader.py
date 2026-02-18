@@ -35,6 +35,7 @@ def get_cookie_file() -> Optional[str]:
     return None
 
 def get_ytdlp_base_opts(is_video: bool = False) -> Dict[str, object]:
+    # Burası YouTube'dan videoyu nasıl çekeceğimizi belirleyen kısım
     opts = {
         "outtmpl": f"{DOWNLOAD_DIR}/%(id)s.%(ext)s",
         "quiet": True,
@@ -50,10 +51,10 @@ def get_ytdlp_base_opts(is_video: bool = False) -> Dict[str, object]:
     }
     
     if is_video:
-        # Video için en iyi kaliteyi seçer (720p genellikle idealdir)
+        # YouTube'dan hem görüntü hem ses içeren en iyi MP4'ü çeker
         opts["format"] = "best[ext=mp4]/best"
     else:
-        # Ses için en iyi sesi seçer
+        # Sadece ses çeker
         opts["format"] = "bestaudio/best"
 
     if cookiefile := get_cookie_file():
@@ -61,26 +62,27 @@ def get_ytdlp_base_opts(is_video: bool = False) -> Dict[str, object]:
     return opts
 
 async def yt_dlp_download(link: str, **kwargs) -> Optional[str]:
-    """Her şeyi doğrudan indiren ana fonksiyon"""
+    """YouTube linkini alır ve videoyu/sesi doğrudan indirir"""
     loop = asyncio.get_running_loop()
     
-    # Gelen isteğin video olup olmadığını kontrol et
+    # Gelen komut video mu yoksa ses mi? (is_video kontrolü)
     is_video = kwargs.get("type") == "video"
     opts = get_ytdlp_base_opts(is_video=is_video)
     
     def _download():
         with YoutubeDL(opts) as ydl:
+            # YouTube üzerinden bilgileri çeker ve indirmeyi başlatır
             info = ydl.extract_info(link, download=True)
             return ydl.prepare_filename(info)
 
     try:
-        title = kwargs.get("title", "Parça")
-        LOGGER.info(f"{'Video' if is_video else 'Ses'} indiriliyor: {title}")
+        title = kwargs.get("title", "YouTube Parçası")
+        LOGGER.info(f"YouTube'dan {'Video' if is_video else 'Ses'} indiriliyor: {title}")
         return await loop.run_in_executor(None, _download)
     except Exception as e:
-        LOGGER.error(f"İndirme hatası: {e}")
+        LOGGER.error(f"YouTube indirme hatası: {e}")
         return None
 
-# Eski API fonksiyonlarını hata vermemesi için boş bırakıyoruz
+# API fonksiyonlarını devre dışı bırakıyoruz ki YouTube'dan direkt çeksin
 async def api_download_audio(link: str): return None
 async def api_download_video(link: str): return None
