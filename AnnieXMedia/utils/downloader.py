@@ -66,7 +66,6 @@ def find_cached_file(video_id: str) -> Optional[str]:
 
 
 def get_ytdlp_base_opts() -> Dict[str, object]:
-    # --- BURASI KRİTİK: WINDOWS PC TAKLİDİ AYARLARI ---
     opts = {
         "outtmpl": f"{DOWNLOAD_DIR}/%(id)s.%(ext)s",
         "quiet": True,
@@ -77,18 +76,15 @@ def get_ytdlp_base_opts() -> Dict[str, object]:
         "noprogress": True,
         "concurrent_fragment_downloads": 10,
         "http_chunk_size": 10485760,
-        "socket_timeout": 30,  # Timeout süresini artırdık
-        "retries": 10,         # Israrla denesin diye artırdık
+        "socket_timeout": 30,
+        "retries": 10,
         "fragment_retries": 10,
         "cachedir": str(CACHE_DIR),
         "ignoreerrors": True,
         "merge_output_format": "mp4",
         "geo_bypass": True,
         "nocheckcertificate": True,
-        "source_address": "0.0.0.0", # IPv4 zorlaması (Şart)
-        
-        # --- İŞTE SİHİRLİ KISIM (KİMLİK GİZLEME) ---
-        # Botun kendini Windows 10 / Chrome tarayıcı olarak tanıtmasını sağlıyoruz
+        "source_address": "0.0.0.0",
         "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
         "referer": "https://www.youtube.com/",
         "http_headers": {
@@ -169,3 +165,29 @@ async def api_download_audio(link: str) -> Optional[str]:
 
 
 async def api_download_video(link: str) -> Optional[str]:
+    if not USE_VIDEO_API:
+        return None
+    vid = extract_video_id(link)
+    if not vid:
+        return None
+    poll_url = f"{VIDEO_API_URL}/video/{vid}?api={API_KEY}"
+    try:
+        session = await get_http_session()
+        while True:
+            async with session.get(poll_url) as r:
+                if r.status != 200:
+                    return None
+                data = await r.json()
+                status = str(data.get("status", "")).lower()
+                if status == "downloading":
+                    await asyncio.sleep(1.5)
+                    continue
+                if status != "done":
+                    return None
+                dl_url = data.get("link")
+                fmt = data.get("format", "mp4")
+                out_path = f"{DOWNLOAD_DIR}/{vid}.{fmt}"
+                return await download_file(dl_url, out_path)
+    except Exception as e:
+        LOGGER.error(f"Video API Hatası: {e}")
+        return None
