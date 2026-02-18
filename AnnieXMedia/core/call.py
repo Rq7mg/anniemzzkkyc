@@ -1,4 +1,4 @@
-﻿# Authored By Certified Coders © 2025
+# Authored By Certified Coders © 2025
 import asyncio
 import os
 from datetime import datetime, timedelta
@@ -38,15 +38,16 @@ from AnnieXMedia.utils.errors import capture_internal_err
 autoend = {}
 counter = {}
 
+# -- KIYICI GÜNCELLEME: Video kalitesi düşürüldü, akış garantiye alındı --
 def dynamic_media_stream(path: str, video: bool = False, ffmpeg_params: str = None) -> MediaStream:
     if video:
         return MediaStream(
             media_path=path,
             audio_parameters=AudioQuality.HIGH,
-            video_parameters=VideoQuality.HD_720p,
+            video_parameters=VideoQuality.SD_480p, # Heroku kasmaması için 480p yapıldı
             audio_flags=MediaStream.Flags.REQUIRED,
             video_flags=MediaStream.Flags.REQUIRED,
-            ffmpeg_parameters=ffmpeg_params,
+            ffmpeg_parameters=ffmpeg_params if ffmpeg_params else "",
         )
     else:
         return MediaStream(
@@ -54,7 +55,7 @@ def dynamic_media_stream(path: str, video: bool = False, ffmpeg_params: str = No
             audio_parameters=AudioQuality.HIGH,
             audio_flags=MediaStream.Flags.REQUIRED,
             video_flags=MediaStream.Flags.IGNORE,
-            ffmpeg_parameters=ffmpeg_params,
+            ffmpeg_parameters=ffmpeg_params if ffmpeg_params else "",
         )
 
 async def _clear_(chat_id: int) -> None:
@@ -509,9 +510,9 @@ class Call:
 
         async def unified_update_handler(client, update: Update) -> None:
             if isinstance(update, StreamEnded):
-                if update.stream_type == StreamEnded.Type.AUDIO:
-                    assistant = await group_assistant(self, update.chat_id)
-                    await self.play(assistant, update.chat_id)
+                # VİDEO BİTTİĞİNDE DE OYNATMAYA DEVAM ETMESİ İÇİN DÜZELTİLDİ
+                assistant = await group_assistant(self, update.chat_id)
+                await self.play(assistant, update.chat_id)
             
             elif isinstance(update, ChatUpdate):
                 status = update.status
