@@ -62,13 +62,33 @@ async def play_command(
     user_id = message.from_user.id
     user_name = message.from_user.first_name
 
-    # Telgraf dosyaları (Ses/Video)
-    audio_telegram = (
-        (message.reply_to_message.audio or message.reply_to_message.voice)
-        if message.reply_to_message
-        else None
-    )
+    # --- TELEGRAM DOSYALARI (SES / VİDEO / BELGE) ---
+    reply = message.reply_to_message if message.reply_to_message else None
+    
+    # Video Yanıtlama Kontrolü (Düzeltildi)
+    video_telegram = (reply.video or reply.document) if reply and video else None
+    # Ses Yanıtlama Kontrolü
+    audio_telegram = (reply.audio or reply.voice) if reply else None
 
+    # Eğer bir video dosyasına yanıt verilmişse
+    if video_telegram:
+        if video_telegram.file_size > config.TG_VIDEO_FILESIZE_LIMIT:
+            return await mystic.edit_text("𝐋𝐚 𝐛𝐮 𝐯𝐢𝐝𝐞𝐨 𝐧𝐞! 𝐂̧𝐨𝐤 𝐚𝐠̆𝐢𝐫, 𝐬𝐮𝐧𝐮𝐜𝐮𝐲𝐮 𝐦𝐮 𝐩𝐚𝐭𝐥𝐚𝐭𝐚𝐜𝐚𝐧?")
+        
+        file_path = await Telegram.get_filepath(video=video_telegram)
+        downloaded = await Telegram.download(_, message, mystic, file_path)
+        if downloaded:
+            message_link = await Telegram.get_link(message)
+            file_name = "Telegram Video"
+            dur = await Telegram.get_duration(video_telegram, file_path)
+            details = {"title": file_name, "link": message_link, "path": file_path, "dur": dur}
+            try:
+                await stream(_, mystic, user_id, details, chat_id, user_name, message.chat.id, video=True, streamtype="telegram", forceplay=bool(fplay))
+            except Exception as e:
+                return await mystic.edit_text(f"𝐇𝐚𝐭𝐚 𝐜̧𝐢𝐤𝐭𝐢 𝐠𝐚ʀ𝐝𝐚𝐬̧: {e}")
+            return await mystic.delete()
+
+    # Eğer bir ses dosyasına yanıt verilmişse
     if audio_telegram:
         if audio_telegram.file_size > config.TG_AUDIO_FILESIZE_LIMIT:
             return await mystic.edit_text("𝐋𝐚 𝐛𝐮 𝐧𝐞! 𝐂̧𝐨𝐤 𝐛𝐮̈𝐲𝐮̈𝐤 𝐛𝐮 𝐝𝐨𝐬𝐲𝐚, 𝐛𝐢𝐳𝐢 𝐦𝐢 𝐲𝐨𝐫𝐚𝐜𝐚𝐧?")
@@ -88,7 +108,7 @@ async def play_command(
                 return await mystic.edit_text(f"𝐇𝐚𝐭𝐚 𝐜̧𝐢𝐤𝐭𝐢 𝐠𝐚ʀ𝐝𝐚𝐬̧: {e}")
             return await mystic.delete()
 
-    # Link Mevzusu (YouTube/Spotify)
+    # --- LİNK MEVZUSU (YOUTUBE / SPOTIFY) ---
     if url:
         if await Spotify.valid(url):
             spotify = True
@@ -101,21 +121,23 @@ async def play_command(
         except Exception as e:
             return await mystic.edit_text(f"𝐋𝐚 𝐛𝐮 𝐥𝐢𝐧𝐤𝐭𝐞 𝐛𝐢 𝐜̧𝐚𝐩𝐚𝐧𝐨𝐠̆𝐥𝐮 𝐯𝐚𝐫, 𝐚𝐜̧𝐢𝐥𝐦𝐢𝐲𝐨!\n𝐇𝐚𝐭𝐚: {e}")
 
-    # Arama Mevzusu
+    # --- ARAMA MEVZUSU ---
     else:
-        if len(message.command) < 2:
+        # Eğer ne link var ne de yanıtlanan bir dosya varsa hata ver
+        if not details and len(message.command) < 2:
             return await mystic.edit_text("𝐋𝐚 𝐧𝐞 𝐜̧𝐚𝐥𝐚𝐜𝐚𝐦? 𝐁𝐢 𝐬̧𝐞𝐲 𝐲𝐚𝐳 𝐝𝐚 𝐨𝐲𝐧𝐚𝐭𝐚𝐥𝐢𝐦!")
 
-        slider = True
-        query = message.text.split(None, 1)[1]
-        
-        try:
-            details, track_id = await YouTube.track(query)
-            internal_type = "youtube"
-        except Exception as e:
-            return await mystic.edit_text(f"𝐀𝐫𝐚𝐝𝐢𝐠̆𝐢𝐧 𝐦𝐞𝐯𝐳𝐮𝐲𝐮 𝐛𝐮𝐥𝐚𝐦𝐚𝐝𝐢𝐦 𝐠𝐚𝐫𝐝𝐚𝐬̧!\n𝐒𝐞𝐛𝐞𝐩: {e}")
+        if not details: # Sadece arama yapılacaksa
+            slider = True
+            query = message.text.split(None, 1)[1]
+            
+            try:
+                details, track_id = await YouTube.track(query)
+                internal_type = "youtube"
+            except Exception as e:
+                return await mystic.edit_text(f"𝐀𝐫𝐚𝐝𝐢𝐠̆𝐢𝐧 𝐦𝐞𝐯𝐳𝐮𝐲𝐮 𝐛𝐮𝐥𝐚𝐦𝐚𝐝𝐢𝐦 𝐠𝐚𝐫𝐝𝐚𝐬̧!\n𝐒𝐞𝐛𝐞𝐩: {e}")
 
-    # Mevzuyu Başlatma (Stream)
+    # --- MEVZUYU BAŞLATMA (STREAM) ---
     if not details:
         return await mystic.edit_text("𝐃𝐞𝐭𝐚𝐲𝐥𝐚𝐫 𝐚𝐥𝐢𝐧𝐚𝐦𝐚𝐝𝐢, 𝐛𝐢 𝐝𝐚𝐡𝐚 𝐝𝐞𝐧𝐞 𝐡𝐞𝐥𝐞.")
 
