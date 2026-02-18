@@ -66,6 +66,7 @@ def find_cached_file(video_id: str) -> Optional[str]:
 
 
 def get_ytdlp_base_opts() -> Dict[str, object]:
+    # --- BURASI KRİTİK: WINDOWS PC TAKLİDİ AYARLARI ---
     opts = {
         "outtmpl": f"{DOWNLOAD_DIR}/%(id)s.%(ext)s",
         "quiet": True,
@@ -76,15 +77,24 @@ def get_ytdlp_base_opts() -> Dict[str, object]:
         "noprogress": True,
         "concurrent_fragment_downloads": 10,
         "http_chunk_size": 10485760,
-        "socket_timeout": 20,
-        "retries": 3,
-        "fragment_retries": 3,
+        "socket_timeout": 30,  # Timeout süresini artırdık
+        "retries": 10,         # Israrla denesin diye artırdık
+        "fragment_retries": 10,
         "cachedir": str(CACHE_DIR),
         "ignoreerrors": True,
         "merge_output_format": "mp4",
         "geo_bypass": True,
         "nocheckcertificate": True,
-        "source_address": "0.0.0.0", # IPv4 zorlaması YouTube engeli için şart
+        "source_address": "0.0.0.0", # IPv4 zorlaması (Şart)
+        
+        # --- İŞTE SİHİRLİ KISIM (KİMLİK GİZLEME) ---
+        # Botun kendini Windows 10 / Chrome tarayıcı olarak tanıtmasını sağlıyoruz
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+        "referer": "https://www.youtube.com/",
+        "http_headers": {
+            "Accept-Language": "en-US,en;q=0.9",
+            "Sec-Fetch-Mode": "navigate",
+        }
     }
     if cookiefile := get_cookie_file():
         opts["cookiefile"] = cookiefile
@@ -159,134 +169,3 @@ async def api_download_audio(link: str) -> Optional[str]:
 
 
 async def api_download_video(link: str) -> Optional[str]:
-    if not USE_VIDEO_API:
-        return None
-    vid = extract_video_id(link)
-    if not vid:
-        return None
-    poll_url = f"{VIDEO_API_URL}/video/{vid}?api={API_KEY}"
-    try:
-        session = await get_http_session()
-        while True:
-            async with session.get(poll_url) as r:
-                if r.status != 200:
-                    return None
-                data = await r.json()
-                status = str(data.get("status", "")).lower()
-                if status == "downloading":
-                    await asyncio.sleep(1.0)
-                    continue
-                if status != "done":
-                    return None
-                dl_url = data.get("link")
-                fmt = data.get("format", "mp4")
-                out_path = f"{DOWNLOAD_DIR}/{vid}.{fmt}"
-                return await download_file(dl_url, out_path)
-    except Exception:
-        return None
-
-
-def get_final_path_from_info(info: Dict) -> Optional[str]:
-    vid = info.get("id")
-    if not vid:
-        return None
-    ext = info.get("ext")
-    if ext:
-        p = f"{DOWNLOAD_DIR}/{vid}.{ext}"
-        if os.path.exists(p):
-            return p
-    matches = sorted(
-        glob.glob(f"{DOWNLOAD_DIR}/{vid}.*"),
-        key=os.path.getmtime,
-        reverse=True,
-    )
-    return matches[0] if matches else None
-
-
-def download_with_ytdlp_sync(link: str, fmt: str) -> Optional[str]:
-    try:
-        opts = get_ytdlp_base_opts()
-        opts["format"] = fmt
-        with YoutubeDL(opts) as ydl:
-            # Burası False kalsın çünkü indirmeyi biz tetikleyeceğiz
-            info = ydl.extract_info(link, download=True)
-            return get_final_path_from_info(info)
-    except Exception:
-        return None
-
-
-async def run_with_semaphore(coro):
-    async with SEM:
-        return await coro
-
-
-async def deduplicate_download(key: str, runner):
-    async with _inflight_lock:
-        if fut := _inflight.get(key):
-            return await fut
-        fut = asyncio.get_running_loop().create_future()
-        _inflight[key] = fut
-    try:
-        result = await runner()
-        fut.set_result(result)
-        return result
-    except Exception as e:
-        fut.set_exception(e)
-        return None
-    finally:
-        async with _inflight_lock:
-            _inflight.pop(key, None)
-
-
-async def race_ytdlp_and_api(yt_task, api_task, title: str):
-    done, pending = await asyncio.wait(
-        {yt_task, api_task}, return_when=asyncio.FIRST_COMPLETED
-    )
-    for task in done:
-        result = task.result()
-        if result and os.path.exists(result):
-            source = "yt-dlp" if task is yt_task else "API"
-            log_download_source(title, source)
-            for p in pending:
-                p.cancel()
-            return result
-    return None
-
-
-async def yt_dlp_download(link: str, type: str, title: str = "") -> Optional[str]:
-    loop = asyncio.get_running_loop()
-    vid = extract_video_id(link)
-    if cached := find_cached_file(vid):
-        return cached
-
-    if type == "audio":
-        key = f"audio:{link}"
-        async def run():
-            # FORMAT DÜZELTİLDİ: Katı kural yerine esnek bırakıldı
-            ytdlp_task = asyncio.create_task(
-                run_with_semaphore(
-                    loop.run_in_executor(None, download_with_ytdlp_sync, link, "bestaudio/best")
-                )
-            )
-            api_task = asyncio.create_task(api_download_audio(link)) if USE_AUDIO_API else None
-            if api_task:
-                return await race_ytdlp_and_api(ytdlp_task, api_task, title or "Unknown")
-            return await ytdlp_task
-        return await deduplicate_download(key, run)
-
-    elif type == "video":
-        key = f"video:{link}"
-        async def run():
-            # FORMAT DÜZELTİLDİ: Video için de en esnek seçim
-            ytdlp_task = asyncio.create_task(
-                run_with_semaphore(
-                    loop.run_in_executor(None, download_with_ytdlp_sync, link, "bestvideo[height<=?720]+bestaudio/best")
-                )
-            )
-            api_task = asyncio.create_task(api_download_video(link)) if USE_VIDEO_API else None
-            if api_task:
-                return await race_ytdlp_and_api(ytdlp_task, api_task, title or "Unknown")
-            return await ytdlp_task
-        return await deduplicate_download(key, run)
-
-    return None
