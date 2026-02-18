@@ -1,4 +1,4 @@
-﻿# Authored By Certified Coders © 2025
+# Authored By Certified Coders © 2025
 import os
 import asyncio
 from functools import lru_cache
@@ -13,17 +13,19 @@ BG_PATH = "AnnieXMedia/assets/annie/welcome.png"
 FALLBACK_PIC = "AnnieXMedia/assets/upic.png"
 FONT_PATH = "AnnieXMedia/assets/annie/Arimo.ttf"
 
-BTN_VIEW = "๏ ᴠɪᴇᴡ ɴᴇᴡ ᴍᴇᴍʙᴇʀ ๏"
-BTN_ADD = "๏ ᴋɪᴅɴᴀᴘ ᴍᴇ ๏"
+# --- BUTONLARI TÜRKÇELEŞTİRDİK ---
+BTN_VIEW = "๏ ʙᴇʙᴇʏɪ sᴜᴢ ๏"
+BTN_ADD = "๏ ʙᴇɴɪ ᴍᴇᴋᴀɴɪɴᴀ ɢᴏᴛᴜʀ ๏"
 
+# --- KARŞILAMA METNİNİ ANKARA ŞİVESİ YAPTIK ---
 CAPTION_TXT = """
-**❅────✦ ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ✦────❅
+**❅────✦ ʜᴏs ɢᴇʟᴅɪɴ ʙᴇʙᴇ ✦────❅
 {chat_title}
 ▰▰▰▰▰▰▰▰▰▰▰▰▰
-➻ Nᴀᴍᴇ ✧ {mention}
-➻ Iᴅ ✧ `{uid}`
-➻ Usᴇʀɴᴀᴍᴇ ✧ @{uname}
-➻ Tᴏᴛᴀʟ Mᴇᴍʙᴇʀs ✧ {count}
+➻ ᴀᴅɪ ✧ {mention}
+➻ ɴᴜᴍᴀʀᴀsɪ ✧ `{uid}`
+➻ ᴀᴅʀᴇsɪ ✧ @{uname}
+➻ ᴍᴇᴋᴀɴᴅᴀᴋɪ ʙᴇʙᴇ sᴀʏɪsɪ ✧ {count}
 ▰▰▰▰▰▰▰▰▰▰▰▰▰**
 **❅─────✧❅✦❅✧─────❅**
 """
@@ -58,10 +60,10 @@ def build_pic(av, fn, uid, un):
     d = ImageDraw.Draw(bg)
     f = cached_font()
 
-    # Boş değerleri güvenli hâle getiriyoruz
-    fn_safe = fn or "Yeni Üye"
+    # Resmin üzerine yazılan etiketleri Türkçeleştirdik
+    fn_safe = fn or "Yeni Bebe"
     uid_safe = str(uid or "???")
-    un_safe = un or "No Username"
+    un_safe = un or "Adresi Yok"
 
     d.text((421, 715), fn_safe, fill=(242, 242, 242), font=f)
     d.text((270, 1005), uid_safe, fill=(242, 242, 242), font=f)
@@ -80,7 +82,7 @@ async def safe_send(func, *args, **kwargs):
 @app.on_message(filters.command("welcome") & filters.group)
 async def toggle(client, m: Message):
     if len(m.command) != 2:
-        return await m.reply_text("**Usage:**\n⦿/welcome [on|off]\n➤ Annie Special Welcome.....")
+        return await m.reply_text("**ᴋᴜʟʟᴀɴɪᴍ:**\n⦿/welcome [on|off]\n➤ ᴋɪʏɪᴄɪ ᴏᴢᴇʟ ᴋᴀʀsɪʟᴀᴍᴀ.....")
     user_id = m.from_user.id if m.from_user else (m.sender_chat.id if m.sender_chat else None)
     if not user_id:
         return
@@ -89,17 +91,17 @@ async def toggle(client, m: Message):
     except:
         return
     if u.status not in (enums.ChatMemberStatus.ADMINISTRATOR, enums.ChatMemberStatus.OWNER):
-        return await m.reply_text("**sᴏʀʀʏ ᴏɴʟʏ ᴀᴅᴍɪɴs ᴄᴀɴ ᴄʜᴀɴɢᴇ ᴡᴇʟᴄᴏᴍᴇ ɴᴏᴛɪғɪᴄᴀᴛɪᴏɴ sᴛᴀᴛᴜs!**")
+        return await m.reply_text("**ʜᴏᴘ ʙᴇʙᴇᴍ! sᴀᴅᴇᴄᴇ ᴀᴅᴍɪɴʟᴇʀ ᴋᴀʀsɪʟᴀᴍᴀʏɪ ᴅᴇɢɪsᴛɪʀᴇʙɪʟɪʀ.**")
     flag = m.command[1].lower()
     if flag not in ("on", "off"):
-        return await m.reply_text("**Usage:**\n⦿/welcome [on|off]\n➤ Annie Special Welcome.....")
+        return await m.reply_text("**ᴋᴜʟʟᴀɴɪᴍ:**\n⦿/welcome [on|off]\n➤ ᴋɪʏɪᴄɪ ᴏᴢᴇʟ ᴋᴀʀsɪʟᴀᴍᴀ.....")
     cur = await is_on(m.chat.id)
     if flag == "off" and not cur:
-        return await m.reply_text("**ᴡᴇʟᴄᴏᴍᴇ ɴᴏᴛɪғɪᴄᴀᴛɪᴏɴ ᴀʟʀᴇᴀᴅʏ ᴅɪsᴀʙʟᴇᴅ!**")
+        return await m.reply_text("**ᴋᴀʀsɪʟᴀᴍᴀ ᴢᴀᴛᴇɴ ᴋᴀᴘᴀʟɪ ɢᴀʀᴅᴀs!**")
     if flag == "on" and cur:
-        return await m.reply_text("**ᴡᴇʟᴄᴏᴍᴇ ɴᴏᴛɪғɪᴄᴀᴛɪᴏɴ ᴀʟʀᴇᴀᴅʏ ᴇɴᴀʙʟᴇᴅ!**")
+        return await m.reply_text("**ᴋᴀʀsɪʟᴀᴍᴀ ᴢᴀᴛᴇɴ ᴀᴄɪᴋ ʙᴇʙᴇᴍ!**")
     await set_state(m.chat.id, flag)
-    await m.reply_text(f"**{'ᴇɴᴀʙʟᴇᴅ' if flag == 'on' else 'ᴅɪsᴀʙʟᴇᴅ'} ᴡᴇʟᴄᴏᴍᴇ ɪɴ {m.chat.title}**")
+    await m.reply_text(f"**ᴋᴀʀsɪʟᴀᴍᴀ sɪᴍᴅɪ {m.chat.title} ᴍᴇᴋᴀɴɪɴᴅᴀ {'ᴀᴄɪʟᴅɪ' if flag == 'on' else 'ᴋᴀᴘᴀɴᴅɪ'}.**")
 
 @app.on_chat_member_updated(filters.group, group=-3)
 async def welcome(client, update: ChatMemberUpdated):
@@ -126,7 +128,7 @@ async def welcome(client, update: ChatMemberUpdated):
 
     if not await is_on(cid):
         if await auto_on(cid):
-            await safe_send(client.send_message, cid, "**ᴡᴇʟᴄᴏᴍᴇ ᴍᴇssᴀɢᴇs ʀᴇ-ᴇɴᴀʙʟᴇᴅ.**")
+            await safe_send(client.send_message, cid, "**ᴋᴀʀsɪʟᴀᴍᴀ ᴍᴇsᴀᴊʟᴀʀɪ ᴛᴇᴋʀᴀʀ ᴀʏᴀʀʟᴀɴᴅɪ.**")
         else:
             return
 
@@ -134,7 +136,7 @@ async def welcome(client, update: ChatMemberUpdated):
     if burst >= JOIN_THRESHOLD:
         minutes = min(60, COOL_MINUTES + max(0, burst - JOIN_THRESHOLD) * 2)
         await cool(cid, minutes)
-        await safe_send(client.send_message, cid, f"**ᴍᴀssɪᴠᴇ ᴊᴏɪɴ ᴅᴇᴛᴇᴄᴛᴇᴅ (x{burst}). ᴡᴇʟᴄᴏᴍᴇ ᴍᴇssᴀɢᴇs ᴅɪsᴀʙʟᴇᴅ ғᴏʀ {minutes} ᴍɪɴᴜᴛᴇs.**")
+        await safe_send(client.send_message, cid, f"**ᴏᴏᴏ ᴍᴇᴋᴀɴᴀ ᴄᴏᴋ ᴄᴏᴋᴇɴ ᴏʟᴅᴜ (x{burst}). ᴋᴀʀsɪʟᴀᴍᴀʏɪ {minutes} ᴅᴀᴋɪᴋᴀ ᴅɪɴʟᴇɴᴅɪʀɪʏᴏʀᴜᴍ.**")
         return
 
     user = new.user
@@ -146,7 +148,7 @@ async def welcome(client, update: ChatMemberUpdated):
     if not avatar:
         avatar = FALLBACK_PIC
 
-    img = build_pic(avatar, user.first_name, user.id, user.username or "No Username")
+    img = build_pic(avatar, user.first_name, user.id, user.username or "Adresi Yok")
 
     members = await safe_send(client.get_chat_members_count, cid) or "?"
 
@@ -154,7 +156,7 @@ async def welcome(client, update: ChatMemberUpdated):
         chat_title=update.chat.title,
         mention=user.mention,
         uid=user.id,
-        uname=user.username or "No Username",
+        uname=user.username or "Adresi Yok",
         count=members
     )
 
