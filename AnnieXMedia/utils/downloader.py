@@ -191,3 +191,111 @@ async def api_download_video(link: str) -> Optional[str]:
     except Exception as e:
         LOGGER.error(f"Video API Hatası: {e}")
         return None
+
+# --- EKSİK OLAN VE HATAYA SEBEP OLAN FONKSİYON ---
+async def yt_dlp_download(link: str) -> Optional[str]:
+    """Link üzerinden yt-dlp kullanarak dosya indirir."""
+    loop = asyncio.get_running_loop()
+    opts = get_ytdlp_base_opts()
+    
+    def _download():
+        with YoutubeDL(opts) as ydl:
+            info = ydl.extract_info(link, download=True)
+            return ydl.prepare_filename(info)
+
+    try:
+        return await loop.run_in_executor(None, _download)
+    except Exception as e:
+        LOGGER.error(f"yt-dlp indirme hatası: {e}")
+        return None
+        return _session
+    async with _session_lock:
+        if _session and not _session.closed:
+            return _session
+        timeout = aiohttp.ClientTimeout(total=600, sock_connect=20, sock_read=60)
+        connector = TCPConnector(limit=0, ttl_dns_cache=300, enable_cleanup_closed=True)
+        _session = aiohttp.ClientSession(timeout=timeout, connector=connector)
+        return _session
+
+
+async def close_http_session() -> None:
+    global _session
+    async with _session_lock:
+        if _session and not _session.closed:
+            await _session.close()
+        _session = None
+
+
+async def download_file(url: str, out_path: str) -> Optional[str]:
+    if not url:
+        return None
+    try:
+        session = await get_http_session()
+        async with session.get(url) as resp:
+            if resp.status != 200:
+                return None
+            async with aiofiles.open(out_path, "wb") as f:
+                async for chunk in resp.content.iter_chunked(CHUNK_SIZE):
+                    if not chunk:
+                        break
+                    await f.write(chunk)
+        return out_path if os.path.exists(out_path) else None
+    except Exception:
+        return None
+
+
+async def api_download_audio(link: str) -> Optional[str]:
+    if not USE_AUDIO_API:
+        return None
+    vid = extract_video_id(link)
+    if not vid:
+        return None
+    poll_url = f"{API_URL}/song/{vid}?api={API_KEY}"
+    try:
+        session = await get_http_session()
+        while True:
+            async with session.get(poll_url) as r:
+                if r.status != 200:
+                    return None
+                data = await r.json()
+                status = str(data.get("status", "")).lower()
+                if status == "downloading":
+                    await asyncio.sleep(1.0)
+                    continue
+                if status != "done":
+                    return None
+                dl_url = data.get("link")
+                fmt = data.get("format", "webm")
+                out_path = f"{DOWNLOAD_DIR}/{vid}.{fmt}"
+                return await download_file(dl_url, out_path)
+    except Exception:
+        return None
+
+
+async def api_download_video(link: str) -> Optional[str]:
+    if not USE_VIDEO_API:
+        return None
+    vid = extract_video_id(link)
+    if not vid:
+        return None
+    poll_url = f"{VIDEO_API_URL}/video/{vid}?api={API_KEY}"
+    try:
+        session = await get_http_session()
+        while True:
+            async with session.get(poll_url) as r:
+                if r.status != 200:
+                    return None
+                data = await r.json()
+                status = str(data.get("status", "")).lower()
+                if status == "downloading":
+                    await asyncio.sleep(1.5)
+                    continue
+                if status != "done":
+                    return None
+                dl_url = data.get("link")
+                fmt = data.get("format", "mp4")
+                out_path = f"{DOWNLOAD_DIR}/{vid}.{fmt}"
+                return await download_file(dl_url, out_path)
+    except Exception as e:
+        LOGGER.error(f"Video API Hatası: {e}")
+        return None
