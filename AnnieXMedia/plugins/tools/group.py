@@ -1,4 +1,4 @@
-﻿# Authored By Certified Coders © 2025
+# Authored By Certified Coders © 2025
 from pyrogram import filters
 from pyrogram.types import Message
 from pyrogram.enums import ChatType
@@ -20,29 +20,29 @@ async def _safe_reply_text(message: Message, *args, **kwargs):
 
 @app.on_message(filters.video_chat_started & filters.group)
 async def on_voice_chat_started(_, message: Message):
-    await _safe_reply_text(message, "🎙 **ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ʜᴀs sᴛᴀʀᴛᴇᴅ!**")
+    await _safe_reply_text(message, "🎙 **ᴍᴇᴠᴢᴜ ʙᴀsʟᴀᴅɪ ɢᴀʀᴅᴀs, ʜᴀᴅɪ ᴅᴏʟᴜsᴜɴ!**")
 
 
 @app.on_message(filters.video_chat_ended & filters.group)
 async def on_voice_chat_ended(_, message: Message):
-    await _safe_reply_text(message, "🔕 **ᴠᴏɪᴄᴇ ᴄʜᴀᴛ ᴇɴᴅᴇᴅ.**")
+    await _safe_reply_text(message, "🔕 **ᴍᴇᴠᴢᴜ ʙɪᴛᴛɪ, ʜᴇʀᴋᴇs ʏᴏʟᴜɴᴀ...**")
 
 
 @app.on_message(filters.video_chat_members_invited & filters.group)
 async def on_voice_chat_members_invited(_, message: Message):
-    inviter = "Someone"
+    inviter = "Biri"
     if message.from_user:
         try:
             inviter = message.from_user.mention(message.from_user.first_name)
         except Exception:
-            inviter = message.from_user.first_name or "Someone"
+            inviter = message.from_user.first_name or "Biri"
 
     invited = []
     vcmi = getattr(message, "video_chat_members_invited", None)
     users = getattr(vcmi, "users", []) if vcmi else []
     for user in users:
         try:
-            name = user.first_name or "User"
+            name = user.first_name or "Bebe"
             invited.append(f"[{name}](tg://user?id={user.id})")
         except Exception:
             continue
@@ -50,13 +50,13 @@ async def on_voice_chat_members_invited(_, message: Message):
     if invited:
         await _safe_reply_text(
             message,
-            f"👥 {inviter} ɪɴᴠɪᴛᴇᴅ {', '.join(invited)} ᴛᴏ ᴛʜᴇ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ. 😉",
+            f"👥 {inviter} ʙᴇʙᴇsɪ {', '.join(invited)} ᴋɪsɪʟᴇʀɪɴɪ ᴍᴇᴠᴢᴜʏᴀ ᴄᴀɢɪʀᴅɪ. 😉",
         )
 
 
 @app.on_message(filters.command("leavegroup") & filters.user(OWNER_ID) & filters.group)
 async def leave_group(_, message: Message):
-    await _safe_reply_text(message, "👋 **ʟᴇᴀᴠɪɴɢ ᴛʜɪs ɢʀᴏᴜᴘ...**")
+    await _safe_reply_text(message, "👋 **ᴍᴇᴋᴀɴ ᴅᴀʀ ɢᴇʟᴅɪ, ʙᴇɴ ᴋᴀᴄᴀʀ...**")
     try:
         await app.leave_chat(chat_id=message.chat.id, delete=True)
     except (ChatWriteForbidden, Forbidden, ChannelPrivate):
