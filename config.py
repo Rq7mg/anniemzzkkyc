@@ -71,7 +71,14 @@ SUDO_USERS = list(map(int, getenv("SUDO_USERS", "6563936773").split()))
 AUTO_LEAVING_ASSISTANT = getenv("AUTO_LEAVING_ASSISTANT", "True")
 AUTO_LEAVE_ASSISTANT_TIME = int(getenv("AUTO_LEAVE_ASSISTANT_TIME", "3600"))
 
+# -- GÖRÜNTÜ SORUNU İÇİN EKLENEN KRİTİK AYARLAR --
 COOKIE_URL = getenv("COOKIE_URL")
+# Görüntü akışını zorlamak için default parametreler
+VIDEO_STREAM_LIMIT = 3
+SERVER_PLAYLIST_LIMIT = 30
+# FFmpeg yolu tanımlaması (Heroku Buildpack için)
+FFMPEG_PATH = getenv("FFMPEG_PATH", "ffmpeg") 
+
 API_URL = getenv("API_URL")
 VIDEO_API_URL = getenv("VIDEO_API_URL")
 API_KEY = getenv("API_KEY")
