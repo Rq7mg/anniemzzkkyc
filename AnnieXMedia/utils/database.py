@@ -1,4 +1,4 @@
-﻿# Authored By Certified Coders © 2025
+# Authored By Certified Coders © 2025
 import random
 from typing import Dict, List, Union
 
@@ -654,3 +654,24 @@ async def remove_banned_user(user_id: int):
     if not is_gbanned:
         return
     return await blockeddb.delete_one({"user_id": user_id})
+
+# --- YENİ EKLENEN WELCOME (KARŞILAMA) FONKSİYONLARI ---
+welcome_status = {}
+
+async def is_welcome_on(chat_id: int) -> bool:
+    """Grubun karşılama mesajı açık mı kontrol eder. Varsayılan: False (KAPALI)"""
+    mode = welcome_status.get(chat_id)
+    if mode is None:
+        chat = await chatsdb.find_one({"chat_id": chat_id})
+        if not chat:
+            return False  # Veritabanında yoksa kapalı başlar
+        mode = chat.get("welcome", False) # Veritabanında kayıtlı değeri alır, yoksa False
+        welcome_status[chat_id] = mode
+    return mode
+
+async def set_welcome(chat_id: int, mode: bool):
+    """Grubun karşılama durumunu (on/off) günceller."""
+    welcome_status[chat_id] = mode
+    await chatsdb.update_one(
+        {"chat_id": chat_id}, {"$set": {"welcome": mode}}, upsert=True
+    )
