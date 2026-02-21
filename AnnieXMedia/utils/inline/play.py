@@ -34,10 +34,13 @@ def generate_dark_bar(played_sec, duration_sec):
     return "▰" * filled + "▱" * (bar_length - filled)
 
 def dark_control_buttons(_, chat_id):
+    # Butonları 2 ayrı satıra böldük, böylece sıkışmayacaklar.
     return [
         [
-            InlineKeyboardButton("🎧 Oynat", callback_data=f"stream_admin Resume|{chat_id}"),
             InlineKeyboardButton("⏸ Duraklat", callback_data=f"stream_admin Pause|{chat_id}"),
+            InlineKeyboardButton("🎧 Oynat", callback_data=f"stream_admin Resume|{chat_id}")
+        ],
+        [
             InlineKeyboardButton("↻ Tekrar", callback_data=f"stream_admin Replay|{chat_id}"),
             InlineKeyboardButton("⏭ Geç", callback_data=f"stream_admin Skip|{chat_id}"),
             InlineKeyboardButton("🛑 Durdur", callback_data=f"stream_admin Stop|{chat_id}")
@@ -85,14 +88,29 @@ def stream_markup_timer(_, chat_id, played, dur):
     bar = generate_dark_bar(played_sec, duration_sec)
     progress_line = f"{played} {bar} {dur}"
 
-    return [
-        [InlineKeyboardButton(text=progress_line, callback_data="GetTimer")] +
-        dark_control_buttons(_, chat_id)[0] +
-        [InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close")]
+    # Butonları satır satır ekliyoruz
+    buttons = [
+        # 1. Satır: İlerleme Çubuğu (Tek başına, uzun)
+        [InlineKeyboardButton(text=progress_line, callback_data="GetTimer")]
     ]
+    
+    # 2. ve 3. Satır: Kontrol Butonları (Oynat, Duraklat vb.)
+    buttons.extend(dark_control_buttons(_, chat_id))
+    
+    # 4. Satır: Kapat Butonu
+    buttons.append(
+        [InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close")]
+    )
+
+    return buttons
 
 def stream_markup(_, chat_id):
-    return dark_control_buttons(_, chat_id) + [[InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close")]]
+    # Timersız görünümde de önce kontroller, en alta kapat butonu
+    buttons = dark_control_buttons(_, chat_id)
+    buttons.append(
+        [InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close")]
+    )
+    return buttons
 
 def playlist_markup(_, videoid, user_id, ptype, channel, fplay):
     return [
