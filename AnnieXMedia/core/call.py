@@ -25,7 +25,7 @@ from AnnieXMedia.utils.inline.play import stream_markup
 from AnnieXMedia.utils.stream.api_handler import get_video_from_api
 from AnnieXMedia.utils.errors import capture_internal_err
 
-# --- EKSİK OLAN DEĞİŞKENLER VE SİSTEMLER ---
+# --- KRİTİK DEĞİŞKENLER ---
 autoend = {}
 counter = {}
 
@@ -59,7 +59,7 @@ class Call:
         self.five = PyTgCalls(self.userbot5) if self.userbot5 else None
         self.active_calls: set[int] = set()
 
-    # --- BOTUN BAŞLAMASI İÇİN ŞART OLAN FONKSİYON ---
+    # --- BOT BAŞLATMA FONKSİYONU ---
     async def start(self) -> None:
         LOGGER(__name__).info("Asistanlar devreye alınıyor...")
         if config.STRING1: await self.one.start()
@@ -67,6 +67,28 @@ class Call:
         if config.STRING3: await self.three.start()
         if config.STRING4: await self.four.start()
         if config.STRING5: await self.five.start()
+
+    # --- HATA VEREN DECORATORS FONKSİYONU ---
+    @capture_internal_err
+    async def decorators(self) -> None:
+        assistants = list(filter(None, [self.one, self.two, self.three, self.four, self.five]))
+        
+        CRITICAL = (
+            ChatUpdate.Status.KICKED
+            | ChatUpdate.Status.LEFT_GROUP
+            | ChatUpdate.Status.CLOSED_VOICE_CHAT
+        )
+
+        async def unified_update_handler(client, update: Update) -> None:
+            if isinstance(update, StreamEnded):
+                await self.play(client, update.chat_id)
+            elif isinstance(update, ChatUpdate):
+                status = update.status
+                if (status & ChatUpdate.Status.LEFT_CALL) or (status & CRITICAL):
+                    await self.stop_stream(update.chat_id)
+
+        for assistant in assistants:
+            assistant.on_update()(unified_update_handler)
 
     @capture_internal_err
     async def join_call(self, chat_id, original_chat_id, link, video=None, image=None):
