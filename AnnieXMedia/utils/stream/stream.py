@@ -31,7 +31,7 @@ async def stream(
         vidid = result["vidid"]
         title = (result["title"]).title()
         
-        # Orijinal indirme sistemine geri döndük
+        # Senin ilk başta verdiğin orijinal indirme sistemi
         try:
             file_path, direct = await YouTube.download(
                 vidid, mystic, video=is_video, videoid=vidid
