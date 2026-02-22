@@ -29,9 +29,11 @@ class Call:
         self.one = PyTgCalls(self.userbot1) if self.userbot1 else None
         self.active_calls: set[int] = set()
 
+    # Botun açılış hatasını (start) düzelten orijinal fonksiyon
     async def start(self) -> None:
         if config.STRING1: await self.one.start()
 
+    # Botun açılış hatasını (decorators) düzelten orijinal fonksiyon
     @capture_internal_err
     async def decorators(self) -> None:
         async def handler(client, update: Update) -> None:
@@ -59,9 +61,7 @@ class Call:
                 return
         except: return
         
-        # Orijinal sıradaki parçayı oynatma mantığı
         queued = check[0]["file"]
-        videoid = check[0]["vidid"]
         stream = MediaStream(queued, audio_parameters=AudioQuality.HIGH, video_parameters=VideoQuality.SD_480p if str(check[0]["streamtype"]) == "video" else None)
         await client.play(chat_id, stream)
 
