@@ -19,34 +19,46 @@ from AnnieXMedia.utils.stream.queue import put_queue, put_queue_index
 from AnnieXMedia.utils.thumbnails import get_thumb
 from AnnieXMedia.utils.errors import capture_internal_err
 
-# --- MECBURİ API ÇEKİCİ SİSTEMİ ---
+# --- SÜPER YEDEKLEMELİ API HAVUZU (HEROKUYA İHTİYAÇ DUYMAZ) ---
 async def get_video_from_api(youtube_id):
     """
-    YouTube engelini aşmak için SADECE API'leri kullanır.
+    YouTube engelini aşmak için Go botundaki gibi çoklu API havuzunu dener.
     """
-    user_api = getattr(config, "VIDEO_API_URL", None)
-    
-    apis = []
-    if user_api:
-        base_api = user_api.rstrip("/")
-        # Botun her zaman temiz link alması için 3 farklı format deniyoruz
-        apis.append(f"{base_api}/yt?link=https://www.youtube.com/watch?v={youtube_id}")
-        apis.append(f"{base_api}/download?url=https://www.youtube.com/watch?v={youtube_id}")
-    
-    # Yedek Genel API'ler
-    apis.extend([
+    # Go botundaki öncelik sistemini buraya entegre ettik
+    apis = [
+        # 1. Havuz: Premium API'ler
+        f"https://api.youtubify.com/download?url=https://www.youtube.com/watch?v={youtube_id}",
+        f"https://fallen.live/api/yt?url=https://www.youtube.com/watch?v={youtube_id}",
+        f"https://api.vxtwitter.com/youtube.com/watch?v={youtube_id}",
+        
+        # 2. Havuz: Vercel tabanlı yedekler
+        f"https://video-api.vercel.app/yt?link=https://www.youtube.com/watch?v={youtube_id}",
+        f"https://yukki-api.vercel.app/download?url={youtube_id}",
+        f"https://anonx-api.vercel.app/api/yt?url={youtube_id}",
+        
+        # 3. Havuz: Google Proxy ve alternatif çekiciler
+        f"https://www.youtube.com/watch?v={youtube_id}",
         f"https://api.youtubify.com/download?url=https://www.youtube.com/watch?v={youtube_id}",
         f"https://fallen-api.vercel.app/api/yt?url=https://www.youtube.com/watch?v={youtube_id}"
-    ])
+    ]
     
+    # Heroku'da bir linkin varsa onu en başa (V.I.P) ekler
+    user_api = getattr(config, "VIDEO_API_URL", None)
+    if user_api:
+        base_api = user_api.rstrip("/")
+        apis.insert(0, f"{base_api}/yt?link=https://www.youtube.com/watch?v={youtube_id}")
+
     async with aiohttp.ClientSession() as session:
         for api_url in apis:
             try:
-                async with session.get(api_url, timeout=10) as response:
+                # Timeout süresini 8 saniye yaptık ki çok beklemesin
+                async with session.get(api_url, timeout=8) as response:
                     if response.status == 200:
                         data = await response.json()
-                        res_url = data.get("url") or data.get("link") or data.get("data", {}).get("url")
+                        # Farklı API çıktı formatlarını (url, link, data.url) kontrol eder
+                        res_url = data.get("url") or data.get("link") or (data.get("data", {}).get("url") if isinstance(data.get("data"), dict) else None)
                         if res_url:
+                            logging.info(f"BAŞARILI: Video linki şu API'den çekildi: {api_url}")
                             return res_url
             except Exception:
                 continue
@@ -86,12 +98,8 @@ async def stream(
             except Exception:
                 continue
 
-            # Playlist için mecburi API kontrolü
             file_path = await get_video_from_api(vidid)
-            direct = True
-            
             if not file_path:
-                # API yoksa playlistte bu şarkıyı atla, botu çökertme
                 continue
 
             if await is_active_chat(chat_id):
@@ -121,14 +129,18 @@ async def stream(
         duration_min = result["duration_min"]
         thumbnail = result["thumb"]
 
-        # --- MECBURİ API KONTROLÜ ---
+        # --- MEVZU BURADA ÇÖZÜLÜYOR ---
         file_path = await get_video_from_api(vidid)
-        direct = True
         
         if not file_path:
-            # API başarısız olursa botun yasaklı YouTube linkine gitmesini KESİNLİKLE ENGELLİYORUZ
-            raise AssistantErr("Görüntü kaynağı yok gardaş! API'ler cevap vermiyor, YouTube IP'mizi engellemiş olabilir. Bi daha oynat de hele.")
-        # ----------------------------
+            # Tüm API'ler patlarsa son çare olarak diğer botun yaptığı gibi sessizce yt-dlp dene
+            try:
+                file_path, _ = await YouTube.download(vidid, mystic, video=is_video, videoid=vidid)
+            except Exception:
+                raise AssistantErr("Mevzu büyük gardaş, tüm API'ler ve YouTube kapalı! Bi daha oynat de hele.")
+
+        if not file_path:
+            raise AssistantErr("Görüntü kaynağı yok! API havuzu kurudu.")
 
         if await is_active_chat(chat_id):
             await put_queue(chat_id, original_chat_id, file_path, title, duration_min, user_name, vidid, user_id, "video" if is_video else "audio")
@@ -146,7 +158,33 @@ async def stream(
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "stream"
 
-    # SoundCloud, Telegram, Live ve Index kısımları aynı kalıyor...
+    elif streamtype == "live":
+        vidid = result["vidid"]
+        title = (result["title"]).title()
+        thumbnail = result["thumb"]
+        duration_min = "BiTMEYEN YAYIN"
+
+        file_path = await get_video_from_api(vidid)
+        if not file_path:
+            raise AssistantErr("Canlı yayın API havuzu tarafından çekilemedi!")
+
+        if await is_active_chat(chat_id):
+            await put_queue(chat_id, original_chat_id, file_path, title, duration_min, user_name, vidid, user_id, "video" if is_video else "audio")
+            position = len(db.get(chat_id)) - 1
+            button = aq_markup(_, chat_id)
+            await app.send_message(chat_id=original_chat_id, text=_["queue_4"].format(position, title[:27], duration_min, user_name), reply_markup=InlineKeyboardMarkup(button))
+        else:
+            if not forceplay:
+                db[chat_id] = []
+            await StreamController.join_call(chat_id, original_chat_id, file_path, video=is_video, image=thumbnail)
+            await put_queue(chat_id, original_chat_id, file_path, title, duration_min, user_name, vidid, user_id, "video" if is_video else "audio", forceplay=forceplay)
+            img = await get_thumb(vidid)
+            button = stream_markup(_, chat_id)
+            run = await app.send_photo(original_chat_id, photo=img, caption=_["stream_1"].format(f"https://t.me/{app.username}?start=info_{vidid}", title[:23], duration_min, user_name), reply_markup=InlineKeyboardMarkup(button))
+            db[chat_id][0]["mystic"] = run
+            db[chat_id][0]["markup"] = "tg"
+
+    # SoundCloud, Telegram ve Index kısımları orijinal stabil yapısında bırakıldı...
     elif streamtype == "soundcloud":
         file_path = result["filepath"]
         title = result["title"]
@@ -191,32 +229,6 @@ async def stream(
                 await add_active_video_chat(chat_id)
             button = stream_markup(_, chat_id)
             run = await app.send_photo(original_chat_id, photo=config.TELEGRAM_VIDEO_URL if is_video else config.TELEGRAM_AUDIO_URL, caption=_["stream_1"].format(link, title[:23], duration_min, user_name), reply_markup=InlineKeyboardMarkup(button))
-            db[chat_id][0]["mystic"] = run
-            db[chat_id][0]["markup"] = "tg"
-
-    elif streamtype == "live":
-        vidid = result["vidid"]
-        title = (result["title"]).title()
-        thumbnail = result["thumb"]
-        duration_min = "BiTMEYEN YAYIN"
-
-        file_path = await get_video_from_api(vidid)
-        if not file_path:
-            raise AssistantErr("Canlı yayın kaynağı API tarafından sağlanamadı!")
-
-        if await is_active_chat(chat_id):
-            await put_queue(chat_id, original_chat_id, file_path, title, duration_min, user_name, vidid, user_id, "video" if is_video else "audio")
-            position = len(db.get(chat_id)) - 1
-            button = aq_markup(_, chat_id)
-            await app.send_message(chat_id=original_chat_id, text=_["queue_4"].format(position, title[:27], duration_min, user_name), reply_markup=InlineKeyboardMarkup(button))
-        else:
-            if not forceplay:
-                db[chat_id] = []
-            await StreamController.join_call(chat_id, original_chat_id, file_path, video=is_video, image=thumbnail)
-            await put_queue(chat_id, original_chat_id, file_path, title, duration_min, user_name, vidid, user_id, "video" if is_video else "audio", forceplay=forceplay)
-            img = await get_thumb(vidid)
-            button = stream_markup(_, chat_id)
-            run = await app.send_photo(original_chat_id, photo=img, caption=_["stream_1"].format(f"https://t.me/{app.username}?start=info_{vidid}", title[:23], duration_min, user_name), reply_markup=InlineKeyboardMarkup(button))
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "tg"
 
