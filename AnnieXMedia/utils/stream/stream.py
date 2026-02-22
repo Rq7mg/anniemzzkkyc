@@ -1,7 +1,6 @@
 # Authored By Certified Coders © 2025
 import os
 import aiohttp
-import logging
 from random import randint
 from typing import Union
 from pyrogram.types import InlineKeyboardMarkup
@@ -16,38 +15,7 @@ from AnnieXMedia.utils.pastebin import ANNIEBIN
 from AnnieXMedia.utils.stream.queue import put_queue, put_queue_index
 from AnnieXMedia.utils.thumbnails import get_thumb
 from AnnieXMedia.utils.errors import capture_internal_err
-
-# --- SÜPER GÜÇLENDİRİLMİŞ API VE PROXY HAVUZU ---
-async def get_video_from_api(youtube_id):
-    # Go botundaki çalışan mantığı buraya daha sert bir şekilde kuruyoruz
-    apis = [
-        f"https://api.youtubify.com/download?url=https://www.youtube.com/watch?v={youtube_id}",
-        f"https://fallen-api.vercel.app/api/yt?url=https://www.youtube.com/watch?v={youtube_id}",
-        f"https://yukki-api.vercel.app/download?url={youtube_id}",
-        f"https://anonx-api.vercel.app/api/yt?url={youtube_id}",
-        # Alternatif Google Proxy yolları
-        f"https://www.youtube.com/watch?v={youtube_id}",
-        f"https://api.youtubify.com/download?url=https://www.youtube.com/watch?v={youtube_id}"
-    ]
-    
-    user_api = getattr(config, "VIDEO_API_URL", None)
-    if user_api:
-        base_api = user_api.rstrip("/")
-        apis.insert(0, f"{base_api}/yt?link=https://www.youtube.com/watch?v={youtube_id}")
-
-    async with aiohttp.ClientSession() as session:
-        for api_url in apis:
-            try:
-                async with session.get(api_url, timeout=10) as response:
-                    if response.status == 200:
-                        data = await response.json()
-                        # Diğer botun (Go) kullandığı tüm veri formatlarını tarıyoruz
-                        res_url = data.get("url") or data.get("link") or (data.get("data", {}).get("url") if isinstance(data.get("data"), dict) else None)
-                        if res_url and "googlevideo.com" not in res_url: # Banlı link gelirse reddet
-                            return res_url
-            except Exception:
-                continue
-    return None
+from AnnieXMedia.utils.stream.api_handler import get_video_from_api
 
 @capture_internal_err
 async def stream(
@@ -57,10 +25,8 @@ async def stream(
 ) -> None:
     if not result:
         return
-
     forceplay = bool(forceplay)
     is_video = bool(video)
-
     if forceplay:
         await StreamController.force_stop_stream(chat_id)
 
@@ -70,12 +36,9 @@ async def stream(
         duration_min = result["duration_min"]
         thumbnail = result["thumb"]
 
-        # MEVZUYU KÖKTEN ÇÖZEN KISIM
         file_path = await get_video_from_api(vidid)
-        
-        # EĞER API'LERDEN LİNK GELMEZSE ASLA YOUTUBE'A GİTME (HATA VER Kİ BANLANMA)
         if not file_path:
-            raise AssistantErr("Görüntü kaynağı yok gardaş! Tüm API havuzu YouTube engeline takılmış. Bi daha oynat de hele.")
+            raise AssistantErr("Görüntü kaynağı yok gardaş! API'ler cevap vermiyor. Bi daha oynat de hele.")
 
         if await is_active_chat(chat_id):
             await put_queue(chat_id, original_chat_id, file_path, title, duration_min, user_name, vidid, user_id, "video" if is_video else "audio")
@@ -92,5 +55,4 @@ async def stream(
             run = await app.send_photo(original_chat_id, photo=img, caption=_["stream_1"].format(f"https://t.me/{app.username}?start=info_{vidid}", title[:23], duration_min, user_name), reply_markup=InlineKeyboardMarkup(button))
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "stream"
-
-    # Diğer Playlist, Telegram vb. kısımları yukarıdaki mantıkla aynı olacak şekilde kalsın...
+    # Playlist ve diğerleri get_video_from_api üzerinden çalışacak şekilde devam eder...
