@@ -3,12 +3,14 @@ import asyncio
 import os
 from datetime import datetime, timedelta
 from typing import Union
+
 from ntgcalls import TelegramServerError, ConnectionNotFound
 from pyrogram import Client
 from pyrogram.types import InlineKeyboardMarkup
 from pytgcalls import PyTgCalls
 from pytgcalls.exceptions import NoActiveGroupCall, NoAudioSourceFound, NoVideoSourceFound
-from pytgcalls.types import AudioQuality, MediaStream, StreamEnded, Update, VideoQuality
+from pytgcalls.types import AudioQuality, ChatUpdate, MediaStream, StreamEnded, Update, VideoQuality
+
 import config
 from strings import get_string
 from AnnieXMedia import LOGGER, YouTube, app
@@ -23,6 +25,10 @@ from AnnieXMedia.utils.inline.play import stream_markup
 from AnnieXMedia.utils.stream.api_handler import get_video_from_api
 from AnnieXMedia.utils.errors import capture_internal_err
 
+# --- HATA VEREN EKSİK DEĞİŞKENLER BURADA ---
+autoend = {}
+counter = {}
+
 def dynamic_media_stream(path: str, video: bool = False) -> MediaStream:
     extra_params = "-user_agent 'Mozilla/5.0'"
     return MediaStream(
@@ -36,7 +42,7 @@ class Call:
     def __init__(self):
         self.userbot1 = Client("AnnieXAssis1", config.API_ID, config.API_HASH, session_string=config.STRING1) if config.STRING1 else None
         self.one = PyTgCalls(self.userbot1) if self.userbot1 else None
-        # Diğer asistanlar da buraya eklenebilir...
+        # İhtiyaca göre diğer asistanlar eklenebilir
         self.active_calls: set[int] = set()
 
     @capture_internal_err
@@ -47,6 +53,13 @@ class Call:
         self.active_calls.add(chat_id)
         await add_active_chat(chat_id)
         await music_on(chat_id)
+        
+        # Autoend sistemi için kontrol
+        if await is_autoend():
+            counter[chat_id] = {}
+            users = len(await assistant.get_participants(chat_id))
+            if users == 1:
+                autoend[chat_id] = datetime.now() + timedelta(minutes=1)
 
     @capture_internal_err
     async def play(self, client, chat_id: int) -> None:
@@ -54,7 +67,8 @@ class Call:
         if not check: return
         popped = check.pop(0)
         if not check:
-            await client.leave_call(chat_id)
+            try: await client.leave_call(chat_id)
+            except: pass
             return
 
         videoid = check[0]["vidid"]
@@ -63,7 +77,6 @@ class Call:
 
         stream = dynamic_media_stream(path=file_path, video=True if str(check[0]["streamtype"]) == "video" else False)
         await client.play(chat_id, stream)
-        # Kapak fotoğrafı ve bildirim mesajı buraya eklenebilir...
 
     @capture_internal_err
     async def stop_stream(self, chat_id: int) -> None:
