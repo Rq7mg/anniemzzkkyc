@@ -9,9 +9,9 @@ async def get_video_from_api(youtube_id):
         apis.append(f"{base_api}/yt?link=https://www.youtube.com/watch?v={youtube_id}")
     
     apis.extend([
+        f"https://api.youtubify.com/download?url={youtube_id}",
         f"https://api.youtubify.com/download?url=https://www.youtube.com/watch?v={youtube_id}",
-        f"https://fallen-api.vercel.app/api/yt?url=https://www.youtube.com/watch?v={youtube_id}",
-        f"https://api.youtubify.com/download?url={youtube_id}"
+        f"https://fallen-api.vercel.app/api/yt?url=https://www.youtube.com/watch?v={youtube_id}"
     ])
     
     async with aiohttp.ClientSession() as session:
