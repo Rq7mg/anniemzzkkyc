@@ -1,4 +1,5 @@
 # Authored By Certified Coders © 2025
+# Mekanın Sahibi: Mustafa Araz (@officialkiyici)
 import asyncio
 import random
 import time
@@ -89,17 +90,18 @@ async def start_pm(client, message: Message, _):
                 await m.edit_text(f"𝐌𝐞𝐯𝐳𝐮 𝐩𝐚𝐭𝐥𝐚𝐝𝐢: {e}")
             return
 
-    # Özel Mesaj Karşılama - Sticker Gönderimi
+    # Özel Mesaj Karşılama - Sticker Raconu
     sticker_message = await message.reply_sticker(sticker=random.choice(STICKERS))
     asyncio.create_task(delete_sticker_after_delay(sticker_message, 2))
 
-    # --- MUSTAFA ARAZ ÖZEL KARŞILAMA (SİSTEM ÖZELLİKLERİ SİLİNDİ) ---
+    # --- MUSTAFA ARAZ (KIYICI BOSS) ÖZEL PANEL ---
+    # İstediğin fontlar ve sert dil birebir işlendi gardaş
     START_TEXT = f"""
-**𝐕𝐚𝐲 𝐠𝐚𝐫𝐝𝐚𝐬̧𝐢𝐦 {message.from_user.mention} 𝐡𝐨𝐬̧ 𝐠𝐞𝐥𝐝𝐢𝐧! 𝐌𝐞𝐤𝐚𝐧𝐢𝐧 𝐬𝐚𝐡𝐢𝐛𝐢 𝐠𝐞𝐥𝐝𝐢, 𝐝𝐚𝐠̆𝐢𝐥𝐢𝐧 𝐥𝐚!** 👊
+𝐕𝐚𝐲 𝐠𝐚𝐫𝐝𝐚𝐬‌𝐢𝐦 {message.from_user.mention} 𝐡𝐨𝐬‌ 𝐠𝐞𝐥𝐝𝐢𝐧! 𝐌𝐞𝐤𝐚𝐧𝐢𝐧 𝐬𝐚𝐡𝐢𝐛𝐢 𝐠𝐞𝐥𝐝𝐢, 𝐝𝐚𝐠‌𝐢𝐥𝐢𝐧 𝐥𝐚! 👊
 
-**𝐁𝐞𝐧 KIYICI 𝐌𝐮̈𝐳𝐢𝐤 𝐁𝐨𝐭𝐮, 𝐞𝐦𝐫𝐢𝐧𝐝𝐞𝐲𝐢𝐦 𝐠𝐚𝐫𝐝𝐚𝐬̧. 𝐇𝐚𝐲𝐢𝐫𝐝𝐢𝐫 𝐛𝐢' 𝐦𝐞𝐯𝐳𝐮 𝐦𝐮 𝐯𝐚𝐫 𝐲𝐨𝐤𝐬𝐚 𝐤𝐮𝐥𝐚𝐠̆𝐢𝐧𝐢𝐧 𝐩𝐚𝐬𝐢𝐧𝐢 𝐦𝐢 𝐬𝐢𝐥𝐞𝐥𝐢𝐦?** 🔪
+𝐁𝐞𝐧 **𝐊𝐈𝐘𝐈𝐂𝐈** 𝐌𝐮‌𝐳𝐢𝐤 𝐁𝐨𝐭𝐮, 𝐞𝐦𝐫𝐢𝐧𝐝𝐞𝐲𝐢𝐦 𝐠𝐚𝐫𝐝𝐚𝐬‌. 𝐇𝐚𝐲𝐢𝐫𝐝𝐢𝐫 𝐛𝐢' 𝐦𝐞𝐯𝐳𝐮 𝐦𝐮 𝐯𝐚𝐫 𝐲𝐨𝐤𝐬𝐚 𝐤𝐮𝐥𝐚𝐠‌𝐢𝐧𝐢𝐧 𝐩𝐚𝐬𝐢𝐧𝐢 𝐦𝐢 𝐬𝐢𝐥𝐞𝐥𝐢𝐦? 🔪
 
-**𝐒𝐞𝐧 𝐢𝐬𝐭𝐞 𝐲𝐞𝐭𝐞𝐫 𝐤𝐢, 𝐦𝐚𝐡𝐚𝐥𝐥𝐞𝐲𝐢 𝐢𝐧𝐥𝐞𝐭𝐦𝐞𝐲𝐞 𝐡𝐚𝐳𝐢𝐫𝐢𝐳. 𝐀𝐬̧𝐚𝐠̆𝐢𝐝𝐚𝐤𝐢 𝐛𝐮𝐭𝐨𝐧𝐥𝐚𝐫𝐝𝐚𝐧 𝐦𝐞𝐯𝐳𝐮𝐲𝐚 𝐚𝐤𝐚𝐛𝐢𝐥𝐢𝐫𝐬𝐢𝐧. 𝐃𝐢𝐤𝐤𝐚𝐭 𝐞𝐭, 𝐬𝐢𝐬𝐭𝐞𝐦𝐢𝐧 𝐜𝐚𝐧𝐢𝐧𝐢 𝐬𝐢𝐤𝐦𝐚!** 👇
+𝐒𝐞𝐧 𝐢𝐬𝐭𝐞 𝐲𝐞𝐭𝐞𝐫 𝐤𝐢, 𝐦𝐚𝐡𝐚𝐥𝐥𝐞𝐲𝐢 𝐢𝐧𝐥𝐞𝐭𝐦𝐞𝐲𝐞 𝐡𝐚𝐳𝐢𝐫𝐢𝐳. 𝐀𝐬‌𝐚𝐠‌𝐢𝐝𝐚𝐤𝐢 𝐛𝐮𝐭𝐨𝐧𝐥𝐚𝐫𝐝𝐚𝐧 𝐦𝐞𝐯𝐳𝐮𝐲𝐚 𝐚𝐤𝐚𝐛𝐢𝐥𝐢𝐫𝐬𝐢𝐧. 𝐃𝐢𝐤𝐤𝐚𝐭 𝐞𝐭, 𝐬𝐢𝐬𝐭𝐞𝐦𝐢𝐧 𝐜𝐚𝐧𝐢𝐧𝐢 𝐬𝐢𝐤𝐦𝐚! 👇
 """
 
     buttons = [
@@ -111,7 +113,7 @@ async def start_pm(client, message: Message, _):
         ],
         [
             InlineKeyboardButton(text="❄️ 𝐁𝐢𝐳𝐞 𝐊𝐚𝐭𝐢𝐥", url=config.SUPPORT_CHAT),
-            InlineKeyboardButton(text="❓ 𝐑𝐚𝐜𝐨𝐧 & 𝐊𝐮𝐫𝐚𝐥𝐥𝐚𝐫", callback_data="settings_back_helper")
+            InlineKeyboardButton(text="❓ 𝐑𝐚𝐜𝐨𝐧 & 𝐃𝐮𝐲𝐮𝐫𝐮𝐥𝐚𝐫", url="https://t.me/kiyiciupdate")
         ],
         [
             InlineKeyboardButton(text="👑 𝐌𝐞𝐤𝐚𝐧𝐢𝐧 𝐒𝐚𝐡𝐢𝐛𝐢", url="https://t.me/officialkiyici")
