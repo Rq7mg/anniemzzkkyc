@@ -1,5 +1,7 @@
 # Authored By Certified Coders © 2025
 import os
+import aiohttp
+import logging
 from random import randint
 from typing import Union
 
@@ -17,6 +19,26 @@ from AnnieXMedia.utils.stream.queue import put_queue, put_queue_index
 from AnnieXMedia.utils.thumbnails import get_thumb
 from AnnieXMedia.utils.errors import capture_internal_err
 
+# --- YENI API SISTEMI ---
+async def get_video_from_api(youtube_id):
+    youtube_url = f"https://www.youtube.com/watch?v={youtube_id}"
+    apis = [
+        f"https://video-api.vercel.app/yt?link={youtube_url}",
+        f"https://fallen-api.vercel.app/api/yt?url={youtube_url}"
+    ]
+    
+    async with aiohttp.ClientSession() as session:
+        for api_url in apis:
+            try:
+                async with session.get(api_url, timeout=5) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        if data and data.get("url"):
+                            return data.get("url")
+            except Exception:
+                continue
+    return None
+# ------------------------
 
 @capture_internal_err
 async def stream(
@@ -152,14 +174,22 @@ async def stream(
         duration_min = result["duration_min"]
         thumbnail = result["thumb"]
 
-        try:
-            file_path, direct = await YouTube.download(
-                vidid, mystic, video=is_video, videoid=vidid
-            )
-        except Exception:
-            raise AssistantErr(_["play_14"])
+        # YENI SISTEM: Once API'leri dene
+        direct = True
+        file_path = await get_video_from_api(vidid)
+        
+        # Eger API'ler calismazsa, eski usul yt-dlp'yi dene
         if not file_path:
-            raise AssistantErr(_["play_14"])
+            direct = False
+            try:
+                file_path, direct = await YouTube.download(
+                    vidid, mystic, video=is_video, videoid=vidid
+                )
+            except Exception:
+                raise AssistantErr(_["play_14"])
+            
+        if not file_path:
+            raise AssistantErr("Görüntü yok gardaş, API'ler de patlamış. Bi daha oynat de hele.")
 
         if await is_active_chat(chat_id):
             await put_queue(
