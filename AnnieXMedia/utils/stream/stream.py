@@ -19,26 +19,39 @@ from AnnieXMedia.utils.stream.queue import put_queue, put_queue_index
 from AnnieXMedia.utils.thumbnails import get_thumb
 from AnnieXMedia.utils.errors import capture_internal_err
 
-# --- YENI API SISTEMI ---
+# --- GELİŞMİŞ API ÇEKİCİ ---
 async def get_video_from_api(youtube_id):
-    youtube_url = f"https://www.youtube.com/watch?v={youtube_id}"
-    apis = [
-        f"https://video-api.vercel.app/yt?link={youtube_url}",
-        f"https://fallen-api.vercel.app/api/yt?url={youtube_url}"
-    ]
+    """
+    YouTube engelini aşmak için dış API'leri dener.
+    """
+    # Heroku ayarlarından VIDEO_API_URL varsa onu en başa koyarız
+    user_api = getattr(config, "VIDEO_API_URL", None)
+    
+    apis = []
+    if user_api:
+        # Linkin sonundaki / işaretini temizler ve düzgün formatlar
+        base_api = user_api.rstrip("/")
+        apis.append(f"{base_api}/yt?link=https://www.youtube.com/watch?v={youtube_id}")
+    
+    # Yedek API listesi (Genel çalışanlar)
+    apis.extend([
+        f"https://api.youtubify.com/download?url=https://www.youtube.com/watch?v={youtube_id}",
+        f"https://fallen-api.vercel.app/api/yt?url=https://www.youtube.com/watch?v={youtube_id}"
+    ])
     
     async with aiohttp.ClientSession() as session:
         for api_url in apis:
             try:
-                async with session.get(api_url, timeout=5) as response:
+                async with session.get(api_url, timeout=7) as response:
                     if response.status == 200:
                         data = await response.json()
-                        if data and data.get("url"):
-                            return data.get("url")
+                        # Farklı API formatlarını desteklemek için kontrol
+                        res_url = data.get("url") or data.get("link") or data.get("data", {}).get("url")
+                        if res_url:
+                            return res_url
             except Exception:
                 continue
     return None
-# ------------------------
 
 @capture_internal_err
 async def stream(
@@ -102,14 +115,22 @@ async def stream(
             else:
                 if not forceplay:
                     db[chat_id] = []
-                try:
-                    file_path, direct = await YouTube.download(
-                        vidid, mystic, video=is_video, videoid=vidid
-                    )
-                except Exception:
-                    raise AssistantErr(_["play_14"])
+                
+                # Playlistlerde de API denemesi yapıyoruz
+                file_path = await get_video_from_api(vidid)
+                direct = True
+                
                 if not file_path:
-                    raise AssistantErr(_["play_14"])
+                    direct = False
+                    try:
+                        file_path, direct = await YouTube.download(
+                            vidid, mystic, video=is_video, videoid=vidid
+                        )
+                    except Exception:
+                        continue
+
+                if not file_path:
+                    continue
 
                 await StreamController.join_call(
                     chat_id,
@@ -168,18 +189,17 @@ async def stream(
         )
 
     elif streamtype == "youtube":
-        link = result["link"]
         vidid = result["vidid"]
         title = (result["title"]).title()
         duration_min = result["duration_min"]
         thumbnail = result["thumb"]
 
-        # YENI SISTEM: Once API'leri dene
-        direct = True
+        # YENİ SİSTEM: Önce dış API'leri zorla
         file_path = await get_video_from_api(vidid)
+        direct = True
         
-        # Eger API'ler calismazsa, eski usul yt-dlp'yi dene
         if not file_path:
+            # API patlarsa çerezli yt-dlp dene
             direct = False
             try:
                 file_path, direct = await YouTube.download(
@@ -189,7 +209,7 @@ async def stream(
                 raise AssistantErr(_["play_14"])
             
         if not file_path:
-            raise AssistantErr("Görüntü yok gardaş, API'ler de patlamış. Bi daha oynat de hele.")
+            raise AssistantErr("Görüntü yok gardaş, YouTube bizi engelledi. Bi daha oynat de hele.")
 
         if await is_active_chat(chat_id):
             await put_queue(
@@ -362,7 +382,6 @@ async def stream(
         vidid = result["vidid"]
         title = (result["title"]).title()
         thumbnail = result["thumb"]
-        # Canlı yayın süresini şiveli yaptık
         duration_min = "BiTMEYEN YAYIN"
 
         if await is_active_chat(chat_id):
@@ -387,9 +406,14 @@ async def stream(
         else:
             if not forceplay:
                 db[chat_id] = []
-            n, file_path = await YouTube.video(link)
-            if n == 0:
-                raise AssistantErr(_["str_3"])
+            
+            # Canlı yayınlarda da API önceliği
+            file_path = await get_video_from_api(vidid)
+            if not file_path:
+                n, file_path = await YouTube.video(link)
+                if n == 0:
+                    raise AssistantErr(_["str_3"])
+            
             if not file_path:
                 raise AssistantErr(_["play_14"])
 
@@ -430,7 +454,6 @@ async def stream(
 
     elif streamtype == "index":
         link = result
-        # Index linkleri için başlığı değiştirdik
         title = "ʟɪɴᴋᴛᴇɴ ᴄᴀʟıʏᴏʀᴜᴢ ɢᴀʀᴅᴀs"
         duration_min = "00:00"
 
