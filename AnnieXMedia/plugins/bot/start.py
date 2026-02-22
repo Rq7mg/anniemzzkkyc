@@ -89,39 +89,50 @@ async def start_pm(client, message: Message, _):
                 await m.edit_text(f"𝐌𝐞𝐯𝐳𝐮 𝐩𝐚𝐭𝐥𝐚𝐝𝐢: {e}")
             return
 
-    # Özel Mesaj Karşılama (Video İptal Edildi)
-    out = private_panel(_)
+    # Özel Mesaj Karşılama - Sticker Gönderimi
     sticker_message = await message.reply_sticker(sticker=random.choice(STICKERS))
     asyncio.create_task(delete_sticker_after_delay(sticker_message, 2))
 
-    stats_coro = bot_sys_stats()
-    _, _, (UP, CPU, RAM, DISK) = await asyncio.gather(
-        get_served_chats(), get_served_users(), stats_coro
-    )
+    # --- MUSTAFA ARAZ ÖZEL KARŞILAMA (SİSTEM ÖZELLİKLERİ SİLİNDİ) ---
+    START_TEXT = f"""
+**𝐕𝐚𝐲 𝐠𝐚𝐫𝐝𝐚𝐬̧𝐢𝐦 {message.from_user.mention} 𝐡𝐨𝐬̧ 𝐠𝐞𝐥𝐝𝐢𝐧! 𝐌𝐞𝐤𝐚𝐧𝐢𝐧 𝐬𝐚𝐡𝐢𝐛𝐢 𝐠𝐞𝐥𝐝𝐢, 𝐝𝐚𝐠̆𝐢𝐥𝐢𝐧 𝐥𝐚!** 👊
 
-    # VIDEO YERİNE METİN
+**𝐁𝐞𝐧 KIYICI 𝐌𝐮̈𝐳𝐢𝐤 𝐁𝐨𝐭𝐮, 𝐞𝐦𝐫𝐢𝐧𝐝𝐞𝐲𝐢𝐦 𝐠𝐚𝐫𝐝𝐚𝐬̧. 𝐇𝐚𝐲𝐢𝐫𝐝𝐢𝐫 𝐛𝐢' 𝐦𝐞𝐯𝐳𝐮 𝐦𝐮 𝐯𝐚𝐫 𝐲𝐨𝐤𝐬𝐚 𝐤𝐮𝐥𝐚𝐠̆𝐢𝐧𝐢𝐧 𝐩𝐚𝐬𝐢𝐧𝐢 𝐦𝐢 𝐬𝐢𝐥𝐞𝐥𝐢𝐦?** 🔪
+
+**𝐒𝐞𝐧 𝐢𝐬𝐭𝐞 𝐲𝐞𝐭𝐞𝐫 𝐤𝐢, 𝐦𝐚𝐡𝐚𝐥𝐥𝐞𝐲𝐢 𝐢𝐧𝐥𝐞𝐭𝐦𝐞𝐲𝐞 𝐡𝐚𝐳𝐢𝐫𝐢𝐳. 𝐀𝐬̧𝐚𝐠̆𝐢𝐝𝐚𝐤𝐢 𝐛𝐮𝐭𝐨𝐧𝐥𝐚𝐫𝐝𝐚𝐧 𝐦𝐞𝐯𝐳𝐮𝐲𝐚 𝐚𝐤𝐚𝐛𝐢𝐥𝐢𝐫𝐬𝐢𝐧. 𝐃𝐢𝐤𝐤𝐚𝐭 𝐞𝐭, 𝐬𝐢𝐬𝐭𝐞𝐦𝐢𝐧 𝐜𝐚𝐧𝐢𝐧𝐢 𝐬𝐢𝐤𝐦𝐚!** 👇
+"""
+
+    buttons = [
+        [
+            InlineKeyboardButton(
+                text="🤘 𝐌𝐞𝐯𝐳𝐮𝐲𝐚 𝐀𝐤𝐚𝐥𝐢𝐦",
+                url=f"https://t.me/{app.username}?startgroup=true"
+            )
+        ],
+        [
+            InlineKeyboardButton(text="❄️ 𝐁𝐢𝐳𝐞 𝐊𝐚𝐭𝐢𝐥", url=config.SUPPORT_CHAT),
+            InlineKeyboardButton(text="❓ 𝐑𝐚𝐜𝐨𝐧 & 𝐊𝐮𝐫𝐚𝐥𝐥𝐚𝐫", callback_data="settings_back_helper")
+        ],
+        [
+            InlineKeyboardButton(text="👑 𝐌𝐞𝐤𝐚𝐧𝐢𝐧 𝐒𝐚𝐡𝐢𝐛𝐢", url="https://t.me/officialkiyici")
+        ]
+    ]
+
     await message.reply_text(
-        text=f"**𝐕𝐚𝐲 𝐠𝐚𝐫𝐝𝐚𝐬̧𝐢𝐦 {message.from_user.mention} 𝐡𝐨𝐬̧𝐠𝐞𝐥𝐝𝐢𝐧!**\n\n"
-             f"**𝐁𝐞𝐧 KIYICI  𝐌𝐮̈𝐳𝐢𝐤 𝐁𝐨𝐭𝐮, 𝐡𝐚𝐲𝐢𝐫𝐝𝐢𝐫 𝐧𝐞 𝐝𝐢𝐧𝐥𝐞𝐲𝐞𝐜𝐞𝐤𝐬𝐢𝐧?**\n\n"
-             f"**𝐒𝐢𝐬𝐭𝐞𝐦 𝐃𝐮𝐫𝐮𝐦𝐮:**\n"
-             f"⁍ **𝐀𝐲𝐚𝐤𝐭𝐚𝐲𝐢𝐳:** {UP}\n"
-             f"⁍ **𝐂𝐏𝐔:** {CPU} | **𝐑𝐀𝐌:** {RAM}\n"
-             f"⁍ **𝐃𝐢𝐬𝐤:** {DISK}",
-        reply_markup=InlineKeyboardMarkup(out),
+        text=START_TEXT,
+        reply_markup=InlineKeyboardMarkup(buttons),
     )
 
 @app.on_message(filters.command(["start"]) & filters.group & ~BANNED_USERS)
 @LanguageStart
 async def start_gp(client, message: Message, _):
-    out = start_panel(_)
     uptime = int(time.time() - _boot_)
     try:
-        # GRUPTA VİDEO YERİNE METİN
         await message.reply_text(
             text=f"**𝐇𝐚𝐲𝐢𝐫𝐥𝐢 𝐢𝐬̧𝐥𝐞𝐫 𝐠𝐚𝐫𝐝𝐚𝐬̧𝐥𝐚𝐫!**\n\n"
                  f"**𝐁𝐨𝐭𝐮𝐦𝐮𝐳 {get_readable_time(uptime)} 𝐬𝐮̈𝐫𝐞𝐝𝐢𝐫 𝐦𝐞𝐯𝐳𝐮𝐧𝐮𝐧 𝐛𝐚𝐬̧𝐢𝐧𝐝𝐚.**\n"
                  f"**𝐌𝐮̈𝐳𝐢𝐤 𝐚𝐜̧𝐦𝐚𝐤 𝐢𝐬𝐭𝐞𝐲𝐞𝐧 `/oynat` 𝐲𝐚𝐳𝐬𝐢𝐧.**",
-            reply_markup=InlineKeyboardMarkup(out),
+            reply_markup=InlineKeyboardMarkup(start_panel(_)),
         )
     except:
         pass
@@ -143,15 +154,14 @@ async def welcome(client, message: Message):
 
             if member.id == app.id:
                 if message.chat.type != ChatType.SUPERGROUP:
-                    await message.reply_text("**𝐁𝐚𝐤 𝐠𝐚𝐫𝐝𝐚𝐬̧, 𝐛𝐞𝐧𝐢 𝐬𝐮̈𝐩𝐞𝐫 𝐠𝐫𝐮𝐩 𝐲𝐚𝐩𝐦𝐚𝐳𝐬𝐚𝐧 𝐜̧𝐚𝐥𝐢𝐬̧𝐦𝐚𝐦!**")
+                    await message.reply_text("**𝐁𝐚ᴋ 𝐠𝐚𝐫𝐝𝐚𝐬̧, 𝐛𝐞𝐧𝐢 𝐬𝐮̈𝐩𝐞𝐫 𝐠𝐫𝐮𝐩 𝐲𝐚𝐩𝐦𝐚𝐳𝐬𝐚𝐧 𝐜̧𝐚𝐥𝐢𝐬̧𝐦𝐚𝐦!**")
                     return await app.leave_chat(message.chat.id)
 
-                out = start_panel(_)
                 await message.reply_text(
-                    text=f"**𝐒𝐞𝐥𝐚𝐦𝐮𝐧 𝐀𝐥𝐞𝐲𝐤𝐮̈𝐦 𝐠𝐫𝐮𝐩 𝐚𝐡𝐚𝐥𝐢𝐬𝐢!**\n\n"
+                    text=f"**𝐒𝐞𝐥𝐚𝐦𝐮𝐧 𝐀𝐥𝐞𝐲𝐤𝐮̈𝐦 𝐠𝐫ᴜᴘ 𝐚𝐡𝐚𝐥𝐢𝐬𝐢!**\n\n"
                          f"**{message.from_user.mention} 𝐠𝐚𝐫𝐝𝐚𝐬̧𝐢𝐦 𝐛𝐞𝐧𝐢 𝐛𝐮𝐫𝐚𝐲𝐚 𝐠𝐞𝐭𝐢𝐫𝐝𝐢.**\n"
-                         f"**𝐇𝐚𝐝𝐢 𝐛𝐚𝐤𝐚𝐥𝐢𝐦, 𝐦𝐞𝐯𝐳𝐮𝐲𝐮 𝐛𝐚𝐬̧𝐥𝐚𝐭𝐚𝐥𝐢𝐦!**",
-                    reply_markup=InlineKeyboardMarkup(out),
+                         f"**𝐇𝐚𝐝𝐢 𝐛𝐚𝐤𝐚𝐥𝐢𝐦, 𝐦𝐞𝐯𝐳𝐮𝐲𝐚 𝐛𝐚𝐬̧𝐥𝐚𝐭𝐚𝐥𝐢𝐦!**",
+                    reply_markup=InlineKeyboardMarkup(start_panel(_)),
                 )
                 await add_served_chat(message.chat.id)
                 await message.stop_propagation()
